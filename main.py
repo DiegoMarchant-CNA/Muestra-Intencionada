@@ -25,15 +25,15 @@ titulados = lecto_limpiador('DB/titulados_filtrado.csv')
 # Cambiar código de la carrera por el código único reducido
 
 
-def cambiar_codigo(df):
+def codigo_corto(df):
     x = df.CODIGOCARRERA
     regex_codigo = r"[SJV]\d*"
     x = x.str.replace(pat=regex_codigo, repl='', regex=True)
     return x
 
 
-matricula.CODIGOCARRERA = cambiar_codigo(matricula)
-titulados.CODIGOCARRERA = cambiar_codigo(titulados)
+matricula.CODIGOCARRERA = codigo_corto(matricula)
+titulados.CODIGOCARRERA = codigo_corto(titulados)
 
 # Generar diccionario de sedes por código reducido
 
