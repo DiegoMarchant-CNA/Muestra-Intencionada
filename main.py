@@ -10,7 +10,8 @@ def lecto_limpiador(archivo):
     x = pd.read_csv(archivo, encoding='utf-8', sep=";",
                     low_memory=False)
     x.columns = x.columns.str.replace(' ', '')
-    x.columns = x.columns.str.replace('\W', '', regex=True)
+    regex_reemplazo = r'\W'
+    x.columns = x.columns.str.replace(regex_reemplazo, '', regex=True)
     x.columns = x.columns.str.normalize('NFKD')
     x.columns = x.columns.str.encode('ascii', errors='ignore')
     x.columns = x.columns.str.decode('utf-8')
@@ -26,7 +27,8 @@ titulados = lecto_limpiador('DB/titulados_filtrado.csv')
 
 def cambiar_codigo(df):
     x = df.CODIGOCARRERA
-    x = x.str.replace(pat="[SJV]\d*", repl='', regex=True)
+    regex_codigo = r"[SJV]\d*"
+    x = x.str.replace(pat=regex_codigo, repl='', regex=True)
     return x
 
 
