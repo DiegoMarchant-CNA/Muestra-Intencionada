@@ -59,6 +59,7 @@ df_sedes.to_excel('DB_OK/sedes.xlsx')
 eemmoo_str = "Especialidad Médica U Odontológica"
 bachi_pc_ci_str = "Bachillerato, Ciclo Inicial o Plan Común"
 TNS_str = 'Técnico de Nivel Superior'
+Post_str = 'Postítulo'
 
 set_matr_vigente = np.unique(matricula.CODIGOCARRERA.copy().loc[
                              matricula.TOTALMATRICULADOSPRIMERANO > 0])
@@ -69,7 +70,7 @@ eemmoo = np.unique(matricula.CODIGOCARRERA.copy().loc[
                    matricula.CARRERACLASIFICACIONNIVEL1 ==
                    eemmoo_str])
 pre_post = np.unique(matricula.CODIGOCARRERA.copy().loc[
-                     matricula.NIVELGLOBAL != "Postítulo"])
+                     matricula.NIVELGLOBAL != Post_str])
 bachi_pc_ci = np.unique(matricula.CODIGOCARRERA.copy().loc[
                         matricula.CARRERACLASIFICACIONNIVEL1 ==
                         bachi_pc_ci_str])
