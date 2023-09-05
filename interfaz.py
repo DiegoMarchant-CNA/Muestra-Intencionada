@@ -8,4 +8,7 @@ app = ctk.CTk()
 app.geometry('720x480')
 app.title('MI')
 
+boton = ctk.CTkButton(master = app, text='El Botón', font =('Aptos', 20))
+boton.place(relx=0.5, rely=0.5, anchor=ctk.CENTER)
+
 app.mainloop()
