@@ -48,108 +48,127 @@ else:
 
 # Revisar el caso N_AC = 1
 
-# if N_AC == 1:
-#     N_prog = base.shape[0]
-#     if N_prog == 1 :
 
-data_seleccion_0 = np.empty((N_AC, len(base.columns)), dtype=object)
-
-# Hacer excepción para el caso Universidad con TNS
-# (implementación alternativa 1)
-
-caso_universidad = 'UNIVERSIDAD' in IES.split(' ')
-caso_TNS = 'Si' in base['TNS'].unique()
-
-AC_bloqueada_TNS = np.array([])
-if caso_TNS and caso_universidad:
-    base_TNS = base[base['TNS'] == 'Si']
-    AC_TNS = base_TNS['AC'].unique()
-    AC_bloqueada_TNS = np.random.choice(AC_TNS, size=1)
-
-n = 0
-for area in AREAS:
-    base_AC = base[base['AC'] == area]
-    if area == AC_bloqueada_TNS:
-        base_AC = base_AC[base_AC['TNS'] == 'Si']
-    N = base_AC.shape[0]  # filas
-    escoger = np.random.randint(N)
-    prog_elegido = base_AC.iloc[escoger]
-    data_seleccion_0[n] = prog_elegido
-    n += 1
-
-seleccion_0 = pd.DataFrame(data=data_seleccion_0, columns=base.columns)
-
-# Exportar tabla de selección antes de reemplazo
-
-seleccion_0.to_excel('DB_OK/selección/selección inicial.xlsx', index=False)
+def caso_1_AC():
+    N_prog = base.shape[0]
+    if N_prog == 1:
+        data_seleccion_0 = np.empty((1, len(base.columns)), dtype=object)
+        data_seleccion_0[0] = base.iloc[0]
+    elif N_prog > 1 and N_prog < 10:
+        data_seleccion_0 = np.empty((2, len(base.columns)), dtype=object)
+        elegir = np.random.choice(np.arange(N_prog), 2, replace=False)
+        data_seleccion_0[0] = base.iloc[elegir[0]]
+        data_seleccion_0[1] = base.iloc[elegir[1]]
+    elif N_prog > 9:
+        elegir = np.random.choice(np.arange(N_prog), 3, replace=False)
+        data_seleccion_0 = np.empty((3, len(base.columns)), dtype=object)
+        data_seleccion_0[0] = base.iloc[elegir[0]]
+        data_seleccion_0[1] = base.iloc[elegir[1]]
+        data_seleccion_0[2] = base.iloc[elegir[2]]
+    return pd.DataFrame(data=data_seleccion_0, columns=base.columns)
 
 
-# Algoritmo de reemplazo
+if N_AC == 1:
+    seleccion_final = caso_1_AC()
+elif N_AC > 1:
+    data_seleccion_0 = np.empty((N_AC, len(base.columns)), dtype=object)
 
-# Cantidad de postgrados de la MI
-if 'Postgrado' in seleccion_0['nivel'].value_counts(sort=False):
-    post_en_MI = seleccion_0['nivel'].value_counts(sort=False)['Postgrado']
-else:
-    post_en_MI = 0
+    # Hacer excepción para el caso Universidad con TNS
+    # (implementación alternativa 1)
 
-# Verificar grupo en exceso
-if post_en_MI == indice_post:
-    print('Terminado')
-    seleccion_0.to_excel('DB_OK/selección/selección final.xlsx', index=False)
-    sys.exit(0)
-elif post_en_MI > indice_post:
-    print('Excedente en Postgrado')
-    N_reemplazo = post_en_MI - indice_post
-    nivel_en_exceso = 'Postgrado'
-    nivel_escasez = 'Pregrado'
-else:
-    print('Excedente en Pregrado')
-    N_reemplazo = - (post_en_MI - indice_post)
-    nivel_en_exceso = 'Pregrado'
-    nivel_escasez = 'Postgrado'
+    caso_universidad = 'UNIVERSIDAD' in IES.split(' ')
+    caso_TNS = 'Si' in base['TNS'].unique()
 
-# Identificar áreas seleccionadas en exceso que también
-# estén en grupo en escasez
-areas_en_exceso = seleccion_0[seleccion_0['nivel'] ==
-                              nivel_en_exceso]['AC'].unique()
-areas_escasez = seleccion_0[seleccion_0['nivel'] ==
-                            nivel_escasez]['AC'].unique()
+    AC_bloqueada_TNS = np.array([])
+    if caso_TNS and caso_universidad:
+        base_TNS = base[base['TNS'] == 'Si']
+        AC_TNS = base_TNS['AC'].unique()
+        AC_bloqueada_TNS = np.random.choice(AC_TNS, size=1)
 
-if nivel_escasez == 'Pregrado':
-    areas_base_escasez = AC_pre
-else:
-    areas_base_escasez = AC_post
+    n = 0
+    for area in AREAS:
+        base_AC = base[base['AC'] == area]
+        if len(AC_bloqueada_TNS) > 0 and area == AC_bloqueada_TNS:
+            base_AC = base_AC[base_AC['TNS'] == 'Si']
+        N = base_AC.shape[0]  # filas
+        escoger = np.random.randint(N)
+        prog_elegido = base_AC.iloc[escoger]
+        data_seleccion_0[n] = prog_elegido
+        n += 1
 
+    seleccion_0 = pd.DataFrame(data=data_seleccion_0, columns=base.columns)
 
-conjunto_reemplazo = np.intersect1d(areas_en_exceso, areas_base_escasez)
+    # Exportar tabla de selección antes de reemplazo
 
-# Quitar la AC bloqueada, en caso que exista
+    seleccion_0.to_excel('DB_OK/selección/selección inicial.xlsx', index=False)
 
-conjunto_reemplazo = np.setdiff1d(conjunto_reemplazo, AC_bloqueada_TNS)
+    # Algoritmo de reemplazo
 
+    # Cantidad de postgrados de la MI
+    if 'Postgrado' in seleccion_0['nivel'].value_counts(sort=False):
+        post_en_MI = seleccion_0['nivel'].value_counts(sort=False)['Postgrado']
+    else:
+        post_en_MI = 0
 
-# Determinar las áreas a reemplazar
+    # Verificar grupo en exceso
+    if post_en_MI == indice_post:
+        print('Terminado')
+        seleccion_0.to_excel('DB_OK/selección/selección final.xlsx',
+                             index=False)
+        seleccion_final = seleccion_0
+        sys.exit(0)
+    elif post_en_MI > indice_post:
+        print('Excedente en Postgrado')
+        N_reemplazo = post_en_MI - indice_post
+        nivel_en_exceso = 'Postgrado'
+        nivel_escasez = 'Pregrado'
+    else:
+        print('Excedente en Pregrado')
+        N_reemplazo = - (post_en_MI - indice_post)
+        nivel_en_exceso = 'Pregrado'
+        nivel_escasez = 'Postgrado'
 
-if len(conjunto_reemplazo) == N_reemplazo:
-    AC_reemplazo = conjunto_reemplazo
-elif len(conjunto_reemplazo) > N_reemplazo:
-    AC_reemplazo = np.random.choice(conjunto_reemplazo, size=N_reemplazo,
-                                    replace=False)
-else:
-    print('ERROR')
+    # Identificar áreas seleccionadas en exceso que también
+    # estén en grupo en escasez
+    areas_en_exceso = seleccion_0[seleccion_0['nivel'] ==
+                                  nivel_en_exceso]['AC'].unique()
+    areas_escasez = seleccion_0[seleccion_0['nivel'] ==
+                                nivel_escasez]['AC'].unique()
 
+    if nivel_escasez == 'Pregrado':
+        areas_base_escasez = AC_pre
+    else:
+        areas_base_escasez = AC_post
 
-# Hacer el reemplazo en esta área, sólo tomando programas del área en escasez
+    conjunto_reemplazo = np.intersect1d(areas_en_exceso, areas_base_escasez)
 
-seleccion_final = seleccion_0.copy()
+    # Quitar la AC bloqueada, en caso que exista
 
-for area in AC_reemplazo:
-    base_AC = base[base['AC'] == area]
-    base_AC = base_AC[base_AC['nivel'] == nivel_escasez]
-    N = base_AC.shape[0]  # filas
-    escoger = np.random.randint(N)
-    prog_elegido = base_AC.iloc[escoger]
-    seleccion_final[seleccion_final['AC'] == area] = prog_elegido.to_numpy()
+    conjunto_reemplazo = np.setdiff1d(conjunto_reemplazo, AC_bloqueada_TNS)
+
+    # Determinar las áreas a reemplazar
+
+    if len(conjunto_reemplazo) == N_reemplazo:
+        AC_reemplazo = conjunto_reemplazo
+    elif len(conjunto_reemplazo) > N_reemplazo:
+        AC_reemplazo = np.random.choice(conjunto_reemplazo, size=N_reemplazo,
+                                        replace=False)
+    else:
+        print('ERROR')
+
+    # Hacer el reemplazo en esta área, sólo tomando programas
+    # del área en escasez
+
+    seleccion_final = seleccion_0.copy()
+
+    for area in AC_reemplazo:
+        base_AC = base[base['AC'] == area]
+        base_AC = base_AC[base_AC['nivel'] == nivel_escasez]
+        N = base_AC.shape[0]  # filas
+        escoger = np.random.randint(N)
+        prog_elegido = base_AC.iloc[escoger]
+        bool_AC = seleccion_final['AC'] == area
+        seleccion_final[bool_AC] = prog_elegido.to_numpy()
 
 
 # Agregar sedes a cada programa elegido
