@@ -100,18 +100,18 @@ if post_en_MI == indice_post:
 elif post_en_MI > indice_post:
     print('Excedente en Postgrado')
     N_reemplazo = post_en_MI - indice_post
-    nivel_excedente = 'Postgrado'
+    nivel_en_exceso = 'Postgrado'
     nivel_escasez = 'Pregrado'
 else:
     print('Excedente en Pregrado')
     N_reemplazo = - (post_en_MI - indice_post)
-    nivel_excedente = 'Pregrado'
+    nivel_en_exceso = 'Pregrado'
     nivel_escasez = 'Postgrado'
 
-# Identificar áreas seleccionadas en excedente que también
+# Identificar áreas seleccionadas en exceso que también
 # estén en grupo en escasez
-areas_en_excedente = seleccion_0[seleccion_0['nivel'] ==
-                                 nivel_excedente]['AC'].unique()
+areas_en_exceso = seleccion_0[seleccion_0['nivel'] ==
+                                 nivel_en_exceso]['AC'].unique()
 areas_escasez = seleccion_0[seleccion_0['nivel'] ==
                             nivel_escasez]['AC'].unique()
 
@@ -121,7 +121,7 @@ else:
     areas_base_escasez = AC_post
 
 
-conjunto_reemplazo = np.intersect1d(areas_en_excedente, areas_base_escasez)
+conjunto_reemplazo = np.intersect1d(areas_en_exceso, areas_base_escasez)
 
 # Quitar la AC bloqueada, en caso que exista
 
