@@ -92,7 +92,7 @@ if 'Postgrado' in seleccion_0['nivel'].value_counts(sort=False):
 else:
     post_en_MI = 0
 
-# Verificar grupo excedente
+# Verificar grupo en exceso
 if post_en_MI == indice_post:
     print('Terminado')
     seleccion_0.to_excel('DB_OK/selección/selección final.xlsx', index=False)
@@ -111,7 +111,7 @@ else:
 # Identificar áreas seleccionadas en exceso que también
 # estén en grupo en escasez
 areas_en_exceso = seleccion_0[seleccion_0['nivel'] ==
-                                 nivel_en_exceso]['AC'].unique()
+                              nivel_en_exceso]['AC'].unique()
 areas_escasez = seleccion_0[seleccion_0['nivel'] ==
                             nivel_escasez]['AC'].unique()
 
@@ -139,7 +139,7 @@ else:
     print('ERROR')
 
 
-# Hacer el reemplazo en esta área, sólo tomando programas del área deficiente
+# Hacer el reemplazo en esta área, sólo tomando programas del área en escasez
 
 seleccion_final = seleccion_0.copy()
 
