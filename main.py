@@ -1,5 +1,7 @@
-# Archivo principal que toma recibe las bases de datos y retorna las tablas
-# y archivos necesarios para ejecutar el programa
+""" 
+Archivo principal que toma recibe las bases de datos y retorna las tablas
+y archivos necesarios para ejecutar el programa
+"""
 
 import numpy as np
 import pandas as pd
