@@ -1,5 +1,4 @@
-""" 
-Archivo principal que toma recibe las bases de datos y retorna las tablas
+"""Archivo principal que toma recibe las bases de datos y retorna las tablas
 y archivos necesarios para ejecutar el programa
 """
 
