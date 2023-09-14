@@ -11,8 +11,14 @@ foldername = "DB_OK"
 
 
 def Main(foldername):
+    """Ejecuta programa para ordenar bases de datos
+    y guardarlas en archivo xlsx en el directorio foldername.
+
+    Keyword arguments:
+    foldername -- Nombre del directorio donde guardar archivos
+    """
     def lecto_limpiador(archivo):
-        # Carga el archivo de DB y le cambia las columnas
+        """"Carga archivo, normaliza strings y retorna Data Frame."""
         x = pd.read_csv(archivo, encoding='utf-8', sep=";",
                         low_memory=False)
         x.columns = x.columns.str.replace(' ', '')
@@ -27,55 +33,52 @@ def Main(foldername):
     matricula = lecto_limpiador('DB/matricula_filtrado.csv')
     titulados = lecto_limpiador('DB/titulados_filtrado.csv')
 
-    # Cambiar código de la carrera por el código único reducido
-
     def codigo_corto(df):
-        x = df.CODIGOCARRERA
+        """Cambiar código de la carrera por el código único reducido"""
+        x = df['CODIGOCARRERA']
         regex_codigo = r"[SJV]\d*"
         x = x.str.replace(pat=regex_codigo, repl='', regex=True)
         return x
 
-    matricula.CODIGOCARRERA = codigo_corto(matricula)
-    titulados.CODIGOCARRERA = codigo_corto(titulados)
+    matricula['CODIGOCARRERA'] = codigo_corto(matricula)
+    titulados['CODIGOCARRERA'] = codigo_corto(titulados)
 
-    # Generar diccionario de sedes por código reducido
-
+    # Generar diccionario de sedes por código reducidos
     cod_res = np.unique(matricula.CODIGOCARRERA)
 
     sedes = {}
 
     for codigo in cod_res:
-        sedes.update({codigo: np.unique(matricula.NOMBRESEDE[
-                                        matricula.CODIGOCARRERA == codigo])})
+        sedes.update({codigo: np.unique(matricula['NOMBRESEDE'][
+                                        matricula['CODIGOCARRERA'] == codigo
+                                        ])})
 
     df_sedes = pd.DataFrame.from_dict(data=sedes, orient='Index')
 
     # Guardar sedes en un archivo independiente
-
     df_sedes.to_excel('DB_OK/sedes.xlsx')
 
     # Hacer conjunto de carreras elegibles por requisito: debe tener matrícula,
     # titulados, excluir todo lo que no sea EEMMOO en postítulo,
 
     # Condiciones escritas para filtrar
-
     eemmoo_str = "Especialidad Médica U Odontológica"
     bachi_pc_ci_str = "Bachillerato, Ciclo Inicial o Plan Común"
     TNS_str = 'Técnico de Nivel Superior'
     Post_str = 'Postítulo'
 
-    set_matr_vigente = np.unique(matricula.CODIGOCARRERA.copy().loc[
-                                matricula.TOTALMATRICULADOSPRIMERANO > 0])
-    set_titulados = np.unique(titulados.CODIGOCARRERA.copy().loc[
-                            titulados.TOTALTITULADOS > 0])
+    set_matr_vigente = np.unique(matricula['CODIGOCARRERA'].copy().loc[
+                                 matricula['TOTALMATRICULADOSPRIMERANO'] > 0])
+    set_titulados = np.unique(titulados['CODIGOCARRERA'].copy().loc[
+                              titulados['TOTALTITULADOS'] > 0])
 
-    eemmoo = np.unique(matricula.CODIGOCARRERA.copy().loc[
-                    matricula.CARRERACLASIFICACIONNIVEL1 ==
-                    eemmoo_str])
-    pre_post = np.unique(matricula.CODIGOCARRERA.copy().loc[
-                        matricula.NIVELGLOBAL != Post_str])
-    bachi_pc_ci = np.unique(matricula.CODIGOCARRERA.copy().loc[
-                            matricula.CARRERACLASIFICACIONNIVEL1 ==
+    eemmoo = np.unique(matricula['CODIGOCARRERA'].copy().loc[
+                       matricula['CARRERACLASIFICACIONNIVEL1'] ==
+                       eemmoo_str])
+    pre_post = np.unique(matricula['CODIGOCARRERA'].copy().loc[
+                         matricula['NIVELGLOBAL'] != Post_str])
+    bachi_pc_ci = np.unique(matricula['CODIGOCARRERA'].copy().loc[
+                            matricula['CARRERACLASIFICACIONNIVEL1'] ==
                             bachi_pc_ci_str])
 
     programas = np.setdiff1d(np.union1d(eemmoo, pre_post), bachi_pc_ci)
