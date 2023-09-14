@@ -85,8 +85,7 @@ def funcion_seleccion(IES):
             AC_TNS = base_TNS['AC'].unique()
             AC_bloqueada_TNS = np.random.choice(AC_TNS, size=1)
 
-        n = 0
-        for area in AREAS:
+        for n, area in enumerate(AREAS):
             base_AC = base[base['AC'] == area]
             if len(AC_bloqueada_TNS) > 0 and area == AC_bloqueada_TNS:
                 base_AC = base_AC[base_AC['TNS'] == 'Si']
@@ -94,7 +93,6 @@ def funcion_seleccion(IES):
             escoger = np.random.randint(N)
             prog_elegido = base_AC.iloc[escoger]
             data_seleccion_0[n] = prog_elegido
-            n += 1
 
         seleccion_0 = pd.DataFrame(data=data_seleccion_0, columns=base.columns)
 
@@ -106,8 +104,9 @@ def funcion_seleccion(IES):
         # Algoritmo de reemplazo
 
         # Cantidad de postgrados de la MI
-        if 'Postgrado' in seleccion_0['nivel'].value_counts(sort=False):
-            post_en_MI = seleccion_0['nivel'].value_counts(sort=False)['Postgrado']
+        freq_nivel = seleccion_0['nivel'].value_counts(sort=False)
+        if 'Postgrado' in freq_nivel:
+            post_en_MI = freq_nivel['Postgrado']
         else:
             post_en_MI = 0
 
@@ -117,7 +116,7 @@ def funcion_seleccion(IES):
             seleccion_0.to_excel('DB_OK/selección/selección final.xlsx',
                                  index=False)
             seleccion_final = seleccion_0
-            return
+            return True
         elif post_en_MI > indice_post:
             print('Excedente en Postgrado')
             N_reemplazo = post_en_MI - indice_post
@@ -158,6 +157,7 @@ def funcion_seleccion(IES):
                                             replace=False)
         else:
             print('ERROR')
+            return False
 
         # Hacer el reemplazo en esta área, sólo tomando programas
         # del área en escasez
@@ -234,4 +234,4 @@ def funcion_seleccion(IES):
 
     print(seleccion_final)
 
-    return
+    return True
