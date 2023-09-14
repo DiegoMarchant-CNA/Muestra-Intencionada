@@ -2,6 +2,7 @@ import customtkinter as ctk
 # import tkinter as tk
 from PIL import Image
 import os
+import errno
 import seleccion
 from CTkScrollableDropdown import CTkScrollableDropdown
 
@@ -13,8 +14,8 @@ def funcion_boton():
     caja.configure(state='normal')
     eleccion = combobox.get()
     seleccion.funcion_seleccion(eleccion)
-    caja.insert('0.0', 'Se ha completado la selección de la institución:\n' +
-                eleccion + '\n')
+    caja.insert('0.0', 'Se ha completado la selección de la institución:\n'
+                + eleccion + '\n')
     var = 'Has apretado el botón!'
     caja.insert('0.0', var+'\n')
     caja.configure(state='disabled')
@@ -53,7 +54,15 @@ subtituloLabel = ctk.CTkLabel(app,
                               font=('Aptos', 16))
 subtituloLabel.pack(pady=10)
 
-lista_IES = os.listdir('DB_OK')
+filename = "DB_OK"
+if not os.path.exists(os.path.dirname(filename)):
+    try:
+        os.makedirs(os.path.dirname(filename))
+    except OSError as exc:
+        if exc.errno != errno.EEXIST:
+            raise
+
+lista_IES = os.listdir(filename)
 
 lista_IES = [inst.replace('.xlsx', "") for inst in lista_IES]
 
