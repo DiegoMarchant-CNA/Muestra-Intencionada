@@ -3,11 +3,10 @@ y archivos necesarios para ejecutar el programa
 """
 
 import os
+import sys
 import errno
 import numpy as np
 import pandas as pd
-
-foldername = "DB_OK"
 
 
 def Main(foldername):
@@ -34,7 +33,7 @@ def Main(foldername):
     titulados = lecto_limpiador('DB/titulados_filtrado.csv')
 
     def codigo_corto(df):
-        """Cambiar código de la carrera por el código único reducido"""
+        """Cambiar código de la carrera por el código único reducido."""
         x = df['CODIGOCARRERA']
         regex_codigo = r"[SJV]\d*"
         x = x.str.replace(pat=regex_codigo, repl='', regex=True)
@@ -43,7 +42,7 @@ def Main(foldername):
     matricula['CODIGOCARRERA'] = codigo_corto(matricula)
     titulados['CODIGOCARRERA'] = codigo_corto(titulados)
 
-    # Generar diccionario de sedes por código reducidos
+    # Generar diccionario de sedes por código reducidos.
     cod_res = np.unique(matricula.CODIGOCARRERA)
 
     sedes = {}
@@ -61,25 +60,32 @@ def Main(foldername):
     # Hacer conjunto de carreras elegibles por requisito: debe tener matrícula,
     # titulados, excluir todo lo que no sea EEMMOO en postítulo,
 
-    # Condiciones escritas para filtrar
+    # Condiciones escritas para filtrar.
     eemmoo_str = "Especialidad Médica U Odontológica"
     bachi_pc_ci_str = "Bachillerato, Ciclo Inicial o Plan Común"
     TNS_str = 'Técnico de Nivel Superior'
     Post_str = 'Postítulo'
 
-    set_matr_vigente = np.unique(matricula['CODIGOCARRERA'].copy().loc[
-                                 matricula['TOTALMATRICULADOSPRIMERANO'] > 0])
-    set_titulados = np.unique(titulados['CODIGOCARRERA'].copy().loc[
-                              titulados['TOTALTITULADOS'] > 0])
+    def Filtro_codigos(df, condition_mask):
+        """Retorna Data Frame df filtrado según condition_mask"""
+        return df['CODIGOCARRERA'].copy().loc[condition_mask].unique()
 
-    eemmoo = np.unique(matricula['CODIGOCARRERA'].copy().loc[
-                       matricula['CARRERACLASIFICACIONNIVEL1'] ==
-                       eemmoo_str])
-    pre_post = np.unique(matricula['CODIGOCARRERA'].copy().loc[
-                         matricula['NIVELGLOBAL'] != Post_str])
-    bachi_pc_ci = np.unique(matricula['CODIGOCARRERA'].copy().loc[
-                            matricula['CARRERACLASIFICACIONNIVEL1'] ==
-                            bachi_pc_ci_str])
+    set_matr_vigente = Filtro_codigos(
+        matricula,
+        matricula['TOTALMATRICULADOSPRIMERANO'] > 0)
+    set_titulados = Filtro_codigos(
+        titulados,
+        titulados['TOTALTITULADOS'] > 0)
+
+    eemmoo = Filtro_codigos(
+        matricula,
+        matricula['CARRERACLASIFICACIONNIVEL1'] == eemmoo_str)
+    pre_post = Filtro_codigos(
+        matricula,
+        matricula['NIVELGLOBAL'] != Post_str)
+    bachi_pc_ci = Filtro_codigos(
+        matricula,
+        matricula['CARRERACLASIFICACIONNIVEL1'] == bachi_pc_ci_str)
 
     programas = np.setdiff1d(np.union1d(eemmoo, pre_post), bachi_pc_ci)
     elegibles = np.intersect1d(np.intersect1d(programas,
@@ -88,6 +94,7 @@ def Main(foldername):
     tabla_con_datos = np.empty((len(elegibles), 6), dtype=object)
 
     def Filtrar(column, indice):
+        """Retorna elemento en column e indice dados."""
         mask_indice = matricula['CODIGOCARRERA'] == indice
         return matricula[column][mask_indice].unique()[0]
 
@@ -107,8 +114,9 @@ def Main(foldername):
                                   columns=columnas_tabla_elegible, dtype=str)
     tabla_elegible = tabla_elegible.replace('Postítulo', 'Postgrado')
 
-    # De acá en adelante se trabajará con la tabla_elegible para los análisis
+    # De acá en adelante se trabajará con la tabla_elegible para los análisis.
 
+    # Crear directorio en caso de no existir.
     if not os.path.exists(os.path.dirname(foldername)):
         try:
             os.makedirs(os.path.dirname(foldername))
@@ -116,6 +124,7 @@ def Main(foldername):
             if exc.errno != errno.EEXIST:
                 raise
 
+    # Guardar tabla de datos  y elejibles en formato .xlsx.
     for i in tabla_elegible['IES'].unique():
         directorio = foldername + '/{fies}.xlsx'.format(fies=i)
         tabla_elegible[tabla_elegible['IES'] == i].to_excel(directorio,
@@ -123,4 +132,7 @@ def Main(foldername):
 
     tabla_elegible.to_excel(foldername + '/elegibles.xlsx', index=False)
 
-    # --------------------------------------------------------------------
+
+if __name__ == "__main__":
+    foldername = sys.argv[1] if len(sys.argv) > 1 else "DB_OK"
+    Main(foldername)
