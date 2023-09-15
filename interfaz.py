@@ -2,9 +2,9 @@ import customtkinter as ctk
 # import tkinter as tk
 from PIL import Image
 import os
-import errno
 import seleccion
 from CTkScrollableDropdown import CTkScrollableDropdown
+from main import Main
 
 
 # Función para iniciar código de selección
@@ -54,15 +54,11 @@ subtituloLabel = ctk.CTkLabel(app,
                               font=('Aptos', 16))
 subtituloLabel.pack(pady=10)
 
-filename = "DB_OK"
-if not os.path.exists(os.path.dirname(filename)):
-    try:
-        os.makedirs(os.path.dirname(filename))
-    except OSError as exc:
-        if exc.errno != errno.EEXIST:
-            raise
+foldername = "DB_OK"
 
-lista_IES = os.listdir(filename)
+Main(foldername)
+
+lista_IES = os.listdir(foldername)
 
 lista_IES = [inst.replace('.xlsx', "") for inst in lista_IES]
 
