@@ -4,19 +4,6 @@ import pandas as pd
 import sys
 import os
 
-# Cargar base para muestra intencionada
-
-# lista_IES = os.listdir('DB_OK')
-
-# lista_IES = [inst.replace('.xlsx', "") for inst in lista_IES]
-
-# IES = ""
-
-# while IES not in lista_IES:
-#     IES = input('Indique el nombre de la IES a la que calcular la MI: \n')
-#     IES = IES.upper()
-#     if IES not in lista_IES:
-#         print('Nombre no en sistema. Intente de nuevo')
 
 def funcion_seleccion(IES):
 
@@ -25,23 +12,32 @@ def funcion_seleccion(IES):
     base = pd.read_excel(PATH)
 
     # Revisar número AC institución
-    AREAS = base['AC'].unique()  # type: ignore
+    AREAS = base['AC'].unique()
     N_AC = len(AREAS)
-    print(['Número AC total = {fac}'.format(fac=N_AC)])
 
-    AC_pre = base[base['nivel'] == 'Pregrado']['AC'].unique()  # type: ignore
+    AC_pre = base[base['nivel'] == 'Pregrado']['AC'].unique()
     N_AC_pre = len(AC_pre)
-    print('Número AC pregrado = {fac}'.format(fac=N_AC_pre))
 
-    AC_post = base[base['nivel'] == 'Postgrado']['AC'].unique()  # type: ignore
+    AC_post = base[base['nivel'] == 'Postgrado']['AC'].unique()
     N_AC_post = len(AC_post)
+
+    print(['Número AC total = {fac}'.format(fac=N_AC)])
+    print('Número AC pregrado = {fac}'.format(fac=N_AC_pre))
     print('Número AC postgrado = {fac}'.format(fac=N_AC_post))
 
     # Revisar número AC institución, si hay postgrado entonces
     # calculamos el índice de AC a escoger
 
+
+    def formula_post(ac, ac_pre, ac_post):
+    # Fórmula usada en el cálculo de índices
+        frac = ac/(1 + ac_pre/ac_post)
+        valor = np.floor(frac + 0.5)
+        return int(valor)
+
+
     if N_AC_post > 0:
-        indice_post = int(np.floor(N_AC/(1 + (N_AC_pre/N_AC_post)) + 0.5))
+        indice_post = formula_post(N_AC, N_AC_pre, N_AC_post)
         indice_pre = N_AC - indice_post
     else:
         indice_pre = N_AC
@@ -106,8 +102,9 @@ def funcion_seleccion(IES):
         # Algoritmo de reemplazo
 
         # Cantidad de postgrados de la MI
-        if 'Postgrado' in seleccion_0['nivel'].value_counts(sort=False):
-            post_en_MI = seleccion_0['nivel'].value_counts(sort=False)['Postgrado']
+        hist_nivel_seleccion = seleccion_0['nivel'].value_counts()
+        if 'Postgrado' in hist_nivel_seleccion:
+            post_en_MI = hist_nivel_seleccion['Postgrado']
         else:
             post_en_MI = 0
 
@@ -223,13 +220,12 @@ def funcion_seleccion(IES):
     else:
         demografia_IES[0, 5] = 'No'
 
-    columnas_demografia = ['IES', 'indice_pre0', 'indice_post', 'pre_elegibles',
-                        'post_elegibles', 'Tiene TNS']
+    columnas_demografia = ['IES', 'indice_pre',
+                           'indice_post', 'pre_elegibles',
+                           'post_elegibles', 'Tiene TNS']
 
     demografia_IES = pd.DataFrame(data=demografia_IES,
                                 columns=columnas_demografia)
 
 
-    print(seleccion_final)
-
-    return 
+    return True
