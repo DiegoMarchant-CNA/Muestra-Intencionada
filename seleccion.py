@@ -61,6 +61,7 @@ def caso_FFAA(df):
 # función Caso U_con_TNS:
 
 
+
 def funcion_seleccion(IES):
 
     PATH = 'DB_OK/{inst}.xlsx'.format(inst=IES)
@@ -99,6 +100,7 @@ def funcion_seleccion(IES):
 
     # Revisar el caso N_AC = 1
 
+
     if N_AC == 1:
         seleccion_final = caso_1_AC(base)
     elif 'FFAA' in IES.split(' '):
@@ -118,8 +120,7 @@ def funcion_seleccion(IES):
             AC_TNS = base_TNS['AC'].unique()
             AC_bloqueada_TNS = np.random.choice(AC_TNS, size=1)
 
-        n = 0
-        for area in AREAS:
+        for n, area in enumerate(AREAS):
             base_AC = base[base['AC'] == area]
             if len(AC_bloqueada_TNS) > 0 and area == AC_bloqueada_TNS:
                 base_AC = base_AC[base_AC['TNS'] == 'Si']
@@ -127,18 +128,19 @@ def funcion_seleccion(IES):
             escoger = np.random.randint(N)
             prog_elegido = base_AC.iloc[escoger]
             data_seleccion_0[n] = prog_elegido
-            n += 1
 
         seleccion_0 = pd.DataFrame(data=data_seleccion_0, columns=base.columns)
 
         # Exportar tabla de selección antes de reemplazo
 
         seleccion_0.to_excel('DB_OK/selección/{inst}_selección_inicial.xlsx'.format(inst=IES),
+
                              index=False)
 
         # Algoritmo de reemplazo
 
         # Cantidad de postgrados de la MI
+
         hist_nivel_seleccion = seleccion_0['nivel'].value_counts()
         if 'Postgrado' in hist_nivel_seleccion:
             post_en_MI = hist_nivel_seleccion['Postgrado']
@@ -245,6 +247,7 @@ def funcion_seleccion(IES):
             seleccion_final['Sede 3'][i] = sedes_seleccionadas[2]
 
     # Guardar en excel
+
     seleccion_final.to_excel('DB_OK/selección/{inst}_selección.xlsx'.format(inst=IES),
                              index=False)
 

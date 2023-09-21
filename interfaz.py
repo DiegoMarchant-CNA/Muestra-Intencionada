@@ -4,6 +4,7 @@ from PIL import Image
 import os
 import seleccion
 from CTkScrollableDropdown import CTkScrollableDropdown
+from main import Main
 
 
 # Función para iniciar código de selección
@@ -13,8 +14,8 @@ def funcion_boton():
     caja.configure(state='normal')
     eleccion = combobox.get()
     seleccion.funcion_seleccion(eleccion)
-    caja.insert('0.0', 'Se ha completado la selección de la institución:\n' +
-                eleccion + '\n')
+    caja.insert('0.0', 'Se ha completado la selección de la institución:\n'
+                + eleccion + '\n')
     var = 'Has apretado el botón!'
     caja.insert('0.0', var+'\n')
     caja.configure(state='disabled')
@@ -53,7 +54,11 @@ subtituloLabel = ctk.CTkLabel(app,
                               font=('Aptos', 16))
 subtituloLabel.pack(pady=10)
 
-lista_IES = os.listdir('DB_OK')
+foldername = "DB_OK"
+
+Main(foldername)
+
+lista_IES = os.listdir(foldername)
 
 lista_IES = [inst.replace('.xlsx', "") for inst in lista_IES]
 
