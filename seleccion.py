@@ -1,22 +1,65 @@
 # coding=utf-8
 import numpy as np
 import pandas as pd
-import sys
-import os
+# import sys
+# import os
 
-# Cargar base para muestra intencionada
+# función Caso_1_AC:
 
-# lista_IES = os.listdir('DB_OK')
 
-# lista_IES = [inst.replace('.xlsx', "") for inst in lista_IES]
+def caso_1_AC(df):
+    N_prog = df.shape[0]
+    if N_prog == 1:
+        data_seleccion_0 = np.empty((1, len(df.columns)), dtype=object)
+        data_seleccion_0[0] = df.iloc[0]
+    elif N_prog > 1 and N_prog < 10:
+        data_seleccion_0 = np.empty((2, len(df.columns)), dtype=object)
+        elegir = np.random.choice(np.arange(N_prog), 2, replace=False)
+        data_seleccion_0[0] = df.iloc[elegir[0]]
+        data_seleccion_0[1] = df.iloc[elegir[1]]
+    elif N_prog > 9:
+        elegir = np.random.choice(np.arange(N_prog), 3, replace=False)
+        data_seleccion_0 = np.empty((3, len(df.columns)), dtype=object)
+        data_seleccion_0[0] = df.iloc[elegir[0]]
+        data_seleccion_0[1] = df.iloc[elegir[1]]
+        data_seleccion_0[2] = df.iloc[elegir[2]]
+    return pd.DataFrame(data=data_seleccion_0, columns=df.columns)
 
-# IES = ""
+# función Caso_FFAA:
 
-# while IES not in lista_IES:
-#     IES = input('Indique el nombre de la IES a la que calcular la MI: \n')
-#     IES = IES.upper()
-#     if IES not in lista_IES:
-#         print('Nombre no en sistema. Intente de nuevo')
+
+def caso_FFAA(df):
+    N_prog = df.shape[0]
+    if N_prog == 1:
+        data_seleccion_0 = np.empty((1, len(df.columns)), dtype=object)
+        data_seleccion_0[0] = df.iloc[0]
+    if N_prog == 2:
+        data_seleccion_0 = np.empty((2, len(df.columns)), dtype=object)
+        data_seleccion_0[0] = df.iloc[0]
+        data_seleccion_0[1] = df.iloc[1]
+    elif N_prog > 2 and N_prog <= 15:
+        data_seleccion_0 = np.empty((2, len(df.columns)), dtype=object)
+        elegir = np.random.choice(np.arange(N_prog), 2, replace=False)
+        data_seleccion_0[0] = df.iloc[elegir[0]]
+        data_seleccion_0[1] = df.iloc[elegir[1]]
+    elif N_prog > 15 and N_prog <= 30:
+        elegir = np.random.choice(np.arange(N_prog), 3, replace=False)
+        data_seleccion_0 = np.empty((3, len(df.columns)), dtype=object)
+        data_seleccion_0[0] = df.iloc[elegir[0]]
+        data_seleccion_0[1] = df.iloc[elegir[1]]
+        data_seleccion_0[2] = df.iloc[elegir[2]]
+    elif N_prog > 30:
+        elegir = np.random.choice(np.arange(N_prog), 4, replace=False)
+        data_seleccion_0 = np.empty((4, len(df.columns)), dtype=object)
+        data_seleccion_0[0] = df.iloc[elegir[0]]
+        data_seleccion_0[1] = df.iloc[elegir[1]]
+        data_seleccion_0[2] = df.iloc[elegir[2]]
+        data_seleccion_0[3] = df.iloc[elegir[3]]
+    return pd.DataFrame(data=data_seleccion_0, columns=df.columns)
+
+
+# función Caso U_con_TNS:
+
 
 
 def funcion_seleccion(IES):
@@ -26,23 +69,30 @@ def funcion_seleccion(IES):
     base = pd.read_excel(PATH)
 
     # Revisar número AC institución
-    AREAS = base['AC'].unique()  # type: ignore
+    AREAS = base['AC'].unique()
     N_AC = len(AREAS)
-    print(['Número AC total = {fac}'.format(fac=N_AC)])
 
-    AC_pre = base[base['nivel'] == 'Pregrado']['AC'].unique()  # type: ignore
+    AC_pre = base[base['nivel'] == 'Pregrado']['AC'].unique()
     N_AC_pre = len(AC_pre)
-    print('Número AC pregrado = {fac}'.format(fac=N_AC_pre))
 
-    AC_post = base[base['nivel'] == 'Postgrado']['AC'].unique()  # type: ignore
+    AC_post = base[base['nivel'] == 'Postgrado']['AC'].unique()
     N_AC_post = len(AC_post)
+
+    print(['Número AC total = {fac}'.format(fac=N_AC)])
+    print('Número AC pregrado = {fac}'.format(fac=N_AC_pre))
     print('Número AC postgrado = {fac}'.format(fac=N_AC_post))
 
     # Revisar número AC institución, si hay postgrado entonces
     # calculamos el índice de AC a escoger
 
+    def formula_post(ac, ac_pre, ac_post):
+        # Fórmula usada en el cálculo de índices
+        frac = ac/(1 + ac_pre/ac_post)
+        valor = np.floor(frac + 0.5)
+        return int(valor)
+
     if N_AC_post > 0:
-        indice_post = int(np.floor(N_AC/(1 + (N_AC_pre/N_AC_post)) + 0.5))
+        indice_post = formula_post(N_AC, N_AC_pre, N_AC_post)
         indice_pre = N_AC - indice_post
     else:
         indice_pre = N_AC
@@ -50,26 +100,11 @@ def funcion_seleccion(IES):
 
     # Revisar el caso N_AC = 1
 
-    def caso_1_AC():
-        N_prog = base.shape[0]
-        if N_prog == 1:
-            data_seleccion_0 = np.empty((1, len(base.columns)), dtype=object)
-            data_seleccion_0[0] = base.iloc[0]
-        elif N_prog > 1 and N_prog < 10:
-            data_seleccion_0 = np.empty((2, len(base.columns)), dtype=object)
-            elegir = np.random.choice(np.arange(N_prog), 2, replace=False)
-            data_seleccion_0[0] = base.iloc[elegir[0]]
-            data_seleccion_0[1] = base.iloc[elegir[1]]
-        elif N_prog > 9:
-            elegir = np.random.choice(np.arange(N_prog), 3, replace=False)
-            data_seleccion_0 = np.empty((3, len(base.columns)), dtype=object)
-            data_seleccion_0[0] = base.iloc[elegir[0]]
-            data_seleccion_0[1] = base.iloc[elegir[1]]
-            data_seleccion_0[2] = base.iloc[elegir[2]]
-        return pd.DataFrame(data=data_seleccion_0, columns=base.columns)
 
     if N_AC == 1:
-        seleccion_final = caso_1_AC()
+        seleccion_final = caso_1_AC(base)
+    elif 'FFAA' in IES.split(' '):
+        seleccion_final = caso_FFAA(base)
     elif N_AC > 1:
         data_seleccion_0 = np.empty((N_AC, len(base.columns)), dtype=object)
 
@@ -98,22 +133,24 @@ def funcion_seleccion(IES):
 
         # Exportar tabla de selección antes de reemplazo
 
-        seleccion_0.to_excel('DB_OK/selección/selección inicial.xlsx',
+        seleccion_0.to_excel('DB_OK/selección/{inst}_selección_inicial.xlsx'.format(inst=IES),
+
                              index=False)
 
         # Algoritmo de reemplazo
 
         # Cantidad de postgrados de la MI
-        freq_nivel = seleccion_0['nivel'].value_counts(sort=False)
-        if 'Postgrado' in freq_nivel:
-            post_en_MI = freq_nivel['Postgrado']
+
+        hist_nivel_seleccion = seleccion_0['nivel'].value_counts()
+        if 'Postgrado' in hist_nivel_seleccion:
+            post_en_MI = hist_nivel_seleccion['Postgrado']
         else:
             post_en_MI = 0
 
         # Verificar grupo en exceso
         if post_en_MI == indice_post:
             print('Terminado')
-            seleccion_0.to_excel('DB_OK/selección/selección final.xlsx',
+            seleccion_0.to_excel('DB_OK/selección/{inst}_selección.xlsx'.format(inst=IES),
                                  index=False)
             seleccion_final = seleccion_0
             return True
@@ -132,8 +169,8 @@ def funcion_seleccion(IES):
         # estén en grupo en escasez
         areas_en_exceso = seleccion_0[seleccion_0['nivel'] ==
                                       nivel_en_exceso]['AC'].unique()
-        areas_escasez = seleccion_0[seleccion_0['nivel'] ==
-                                    nivel_escasez]['AC'].unique()
+        # areas_escasez = seleccion_0[seleccion_0['nivel'] ==
+        #                             nivel_escasez]['AC'].unique()
 
         if nivel_escasez == 'Pregrado':
             areas_base_escasez = AC_pre
@@ -186,6 +223,7 @@ def funcion_seleccion(IES):
     # Elegir las sedes de manera aleatoria, considera los 3 casos posibles
     # y escoge 1, 2 o 3 sedes para cada caso
 
+
     for i in np.arange(len(seleccion_final)):
         cod = seleccion_final['Codigo'][i]
         if len(Sedes.loc[cod].dropna()) in np.arange(1, 3 + 1):
@@ -209,7 +247,8 @@ def funcion_seleccion(IES):
             seleccion_final['Sede 3'][i] = sedes_seleccionadas[2]
 
     # Guardar en excel
-    seleccion_final.to_excel('DB_OK/selección/selección final.xlsx',
+
+    seleccion_final.to_excel('DB_OK/selección/{inst}_selección.xlsx'.format(inst=IES),
                              index=False)
 
     # Generar tabla con datos de la IES que se calculó
@@ -226,12 +265,11 @@ def funcion_seleccion(IES):
     else:
         demografia_IES[0, 5] = 'No'
 
-    columnas_demografia = ['IES', 'indice_pre0', 'indice_post', 'pre_elegibles',
+    columnas_demografia = ['IES', 'indice_pre',
+                           'indice_post', 'pre_elegibles',
                            'post_elegibles', 'Tiene TNS']
 
     demografia_IES = pd.DataFrame(data=demografia_IES,
                                   columns=columnas_demografia)
-
-    print(seleccion_final)
 
     return True
