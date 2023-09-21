@@ -18,6 +18,7 @@ import os
 #     if IES not in lista_IES:
 #         print('Nombre no en sistema. Intente de nuevo')
 
+
 def funcion_seleccion(IES):
 
     PATH = 'DB_OK/{inst}.xlsx'.format(inst=IES)
@@ -49,7 +50,6 @@ def funcion_seleccion(IES):
 
     # Revisar el caso N_AC = 1
 
-
     def caso_1_AC():
         N_prog = base.shape[0]
         if N_prog == 1:
@@ -68,7 +68,6 @@ def funcion_seleccion(IES):
             data_seleccion_0[2] = base.iloc[elegir[2]]
         return pd.DataFrame(data=data_seleccion_0, columns=base.columns)
 
-
     if N_AC == 1:
         seleccion_final = caso_1_AC()
     elif N_AC > 1:
@@ -86,8 +85,7 @@ def funcion_seleccion(IES):
             AC_TNS = base_TNS['AC'].unique()
             AC_bloqueada_TNS = np.random.choice(AC_TNS, size=1)
 
-        n = 0
-        for area in AREAS:
+        for n, area in enumerate(AREAS):
             base_AC = base[base['AC'] == area]
             if len(AC_bloqueada_TNS) > 0 and area == AC_bloqueada_TNS:
                 base_AC = base_AC[base_AC['TNS'] == 'Si']
@@ -95,19 +93,20 @@ def funcion_seleccion(IES):
             escoger = np.random.randint(N)
             prog_elegido = base_AC.iloc[escoger]
             data_seleccion_0[n] = prog_elegido
-            n += 1
 
         seleccion_0 = pd.DataFrame(data=data_seleccion_0, columns=base.columns)
 
         # Exportar tabla de selección antes de reemplazo
 
-        seleccion_0.to_excel('DB_OK/selección/selección inicial.xlsx', index=False)
+        seleccion_0.to_excel('DB_OK/selección/selección inicial.xlsx',
+                             index=False)
 
         # Algoritmo de reemplazo
 
         # Cantidad de postgrados de la MI
-        if 'Postgrado' in seleccion_0['nivel'].value_counts(sort=False):
-            post_en_MI = seleccion_0['nivel'].value_counts(sort=False)['Postgrado']
+        freq_nivel = seleccion_0['nivel'].value_counts(sort=False)
+        if 'Postgrado' in freq_nivel:
+            post_en_MI = freq_nivel['Postgrado']
         else:
             post_en_MI = 0
 
@@ -117,7 +116,7 @@ def funcion_seleccion(IES):
             seleccion_0.to_excel('DB_OK/selección/selección final.xlsx',
                                  index=False)
             seleccion_final = seleccion_0
-            return 
+            return True
         elif post_en_MI > indice_post:
             print('Excedente en Postgrado')
             N_reemplazo = post_en_MI - indice_post
@@ -141,7 +140,8 @@ def funcion_seleccion(IES):
         else:
             areas_base_escasez = AC_post
 
-        conjunto_reemplazo = np.intersect1d(areas_en_exceso, areas_base_escasez)
+        conjunto_reemplazo = np.intersect1d(areas_en_exceso,
+                                            areas_base_escasez)
 
         # Quitar la AC bloqueada, en caso que exista
 
@@ -152,10 +152,12 @@ def funcion_seleccion(IES):
         if len(conjunto_reemplazo) == N_reemplazo:
             AC_reemplazo = conjunto_reemplazo
         elif len(conjunto_reemplazo) > N_reemplazo:
-            AC_reemplazo = np.random.choice(conjunto_reemplazo, size=N_reemplazo,
+            AC_reemplazo = np.random.choice(conjunto_reemplazo,
+                                            size=N_reemplazo,
                                             replace=False)
         else:
             print('ERROR')
+            return False
 
         # Hacer el reemplazo en esta área, sólo tomando programas
         # del área en escasez
@@ -170,7 +172,6 @@ def funcion_seleccion(IES):
             prog_elegido = base_AC.iloc[escoger]
             bool_AC = seleccion_final['AC'] == area
             seleccion_final[bool_AC] = prog_elegido.to_numpy()
-
 
     # Agregar sedes a cada programa elegido
 
@@ -188,26 +189,28 @@ def funcion_seleccion(IES):
     for i in np.arange(len(seleccion_final)):
         cod = seleccion_final['Codigo'][i]
         if len(Sedes.loc[cod].dropna()) in np.arange(1, 3 + 1):
-            sedes_seleccionadas = np.random.choice(Sedes.loc[cod].dropna(), size=1,
-                                                replace=False)
+            sedes_seleccionadas = np.random.choice(Sedes.loc[cod].dropna(),
+                                                   size=1,
+                                                   replace=False)
             seleccion_final['Sede 1'][i] = sedes_seleccionadas[0]
         elif len(Sedes.loc[cod].dropna()) in np.arange(4, 9 + 1):
 
-            sedes_seleccionadas = np.random.choice(Sedes.loc[cod].dropna(), size=2,
-                                                replace=False)
+            sedes_seleccionadas = np.random.choice(Sedes.loc[cod].dropna(),
+                                                   size=2,
+                                                   replace=False)
             seleccion_final['Sede 1'][i] = sedes_seleccionadas[0]
             seleccion_final['Sede 2'][i] = sedes_seleccionadas[1]
         elif len(Sedes.loc[cod].dropna()) >= 10:
-            sedes_seleccionadas = np.random.choice(Sedes.loc[cod].dropna(), size=3,
-                                                replace=False)
+            sedes_seleccionadas = np.random.choice(Sedes.loc[cod].dropna(),
+                                                   size=3,
+                                                   replace=False)
             seleccion_final['Sede 1'][i] = sedes_seleccionadas[0]
             seleccion_final['Sede 2'][i] = sedes_seleccionadas[1]
             seleccion_final['Sede 3'][i] = sedes_seleccionadas[2]
 
-
     # Guardar en excel
-    seleccion_final.to_excel('DB_OK/selección/selección final.xlsx', index=False)
-
+    seleccion_final.to_excel('DB_OK/selección/selección final.xlsx',
+                             index=False)
 
     # Generar tabla con datos de la IES que se calculó
 
@@ -224,12 +227,11 @@ def funcion_seleccion(IES):
         demografia_IES[0, 5] = 'No'
 
     columnas_demografia = ['IES', 'indice_pre0', 'indice_post', 'pre_elegibles',
-                        'post_elegibles', 'Tiene TNS']
+                           'post_elegibles', 'Tiene TNS']
 
     demografia_IES = pd.DataFrame(data=demografia_IES,
-                                columns=columnas_demografia)
-
+                                  columns=columnas_demografia)
 
     print(seleccion_final)
 
-    return 
+    return True
