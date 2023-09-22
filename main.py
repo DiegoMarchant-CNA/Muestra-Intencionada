@@ -42,12 +42,16 @@ def Main(foldername):
     matricula['CODIGOCARRERA'] = codigo_corto(matricula)
     titulados['CODIGOCARRERA'] = codigo_corto(titulados)
 
-    # Generar diccionario de sedes por código reducidos.
-    cod_res = np.unique(matricula.CODIGOCARRERA)
+    # Generar diccionario de sedes por código corto únicos.
+    cod_no_duplicados = np.unique(matricula.CODIGOCARRERA)
 
     sedes = {}
 
-    for codigo in cod_res:
+# Diccionario = matriz sin orden particular
+# {código1: [sede1, sede2, sede3, ...],
+# código2: ...}
+
+    for codigo in cod_no_duplicados:
         sedes.update({codigo: np.unique(matricula['NOMBRESEDE'][
                                         matricula['CODIGOCARRERA'] == codigo
                                         ])})
@@ -57,14 +61,15 @@ def Main(foldername):
     # Guardar sedes en un archivo independiente
     df_sedes.to_excel('DB_OK/sedes.xlsx')
 
-    # Hacer conjunto de carreras elegibles por requisito: debe tener matrícula,
-    # titulados, excluir todo lo que no sea EEMMOO en postítulo,
+    # Hacer conjunto de carreras elegibles por requisito: debe tener 
+    # matrícula vigente de primer año > 0,
+    # titulados, sólo seleccionar EEMMOO en postítulo,
 
     # Condiciones escritas para filtrar.
     eemmoo_str = "Especialidad Médica U Odontológica"
     bachi_pc_ci_str = "Bachillerato, Ciclo Inicial o Plan Común"
     TNS_str = 'Técnico de Nivel Superior'
-    Post_str = 'Postítulo'
+    Postitulo_str = 'Postítulo'
 
     def Filtro_codigos(df, condition_mask):
         """Retorna Data Frame df filtrado según condition_mask"""
@@ -82,7 +87,7 @@ def Main(foldername):
         matricula['CARRERACLASIFICACIONNIVEL1'] == eemmoo_str)
     pre_post = Filtro_codigos(
         matricula,
-        matricula['NIVELGLOBAL'] != Post_str)
+        matricula['NIVELGLOBAL'] != Postitulo_str)
     bachi_pc_ci = Filtro_codigos(
         matricula,
         matricula['CARRERACLASIFICACIONNIVEL1'] == bachi_pc_ci_str)
@@ -117,22 +122,22 @@ def Main(foldername):
     # De acá en adelante se trabajará con la tabla_elegible para los análisis.
 
     # Crear directorio en caso de no existir.
-    if not os.path.exists(os.path.dirname(foldername)):
+    if not os.path.exists(os.path.dirname(foldername + '/')):
         try:
-            os.makedirs(os.path.dirname(foldername))
+            os.makedirs(os.path.dirname(foldername + '/'))
         except OSError as exc:
             if exc.errno != errno.EEXIST:
                 raise
 
-    # Guardar tabla de datos  y elejibles en formato .xlsx.
+    # Guardar tabla de datos  y elegibles en formato .xlsx.
     for i in tabla_elegible['IES'].unique():
         directorio = foldername + '/{fies}.xlsx'.format(fies=i)
         tabla_elegible[tabla_elegible['IES'] == i].to_excel(directorio,
-                                                            index=False)
+                                                            index=True)
 
     tabla_elegible.to_excel(foldername + '/elegibles.xlsx', index=False)
 
 
 if __name__ == "__main__":
-    foldername = sys.argv[1] if len(sys.argv) > 1 else "DB_OK"
+    foldername = sys.argv[1] if len(sys.argv) > 1 else "DB_OK/"
     Main(foldername)
