@@ -135,7 +135,9 @@ def funcion_seleccion(IES):
 
         # Exportar tabla de selección antes de reemplazo
 
-        seleccion_0.to_excel('DB_OK/selección/{inst}_selección_inicial.xlsx'.format(inst=IES),
+        seleccion_0.to_excel('DB_OK/'
+                             + 'selección/'
+                             + '{inst}_selección_inicial.xlsx'.format(inst=IES),
                              index=False)
 
         # Algoritmo de reemplazo
@@ -223,7 +225,6 @@ def funcion_seleccion(IES):
 
     # Elegir las sedes de manera aleatoria, considera los 3 casos posibles
     # y escoge 1, 2 o 3 sedes para cada caso
-
 
     for i in np.arange(len(seleccion_final)):
         cod = seleccion_final['Codigo'][i]

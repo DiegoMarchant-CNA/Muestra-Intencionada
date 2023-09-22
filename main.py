@@ -61,7 +61,7 @@ def Main(foldername):
     # Guardar sedes en un archivo independiente
     df_sedes.to_excel('DB_OK/sedes.xlsx')
 
-    # Hacer conjunto de carreras elegibles por requisito: debe tener 
+    # Hacer conjunto de carreras elegibles por requisito: debe tener
     # matrícula vigente de primer año > 0,
     # titulados, sólo seleccionar EEMMOO en postítulo,
 

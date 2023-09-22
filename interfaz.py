@@ -4,7 +4,7 @@ from PIL import Image
 import os
 import seleccion
 from CTkScrollableDropdown import CTkScrollableDropdown
-from main import Main
+# from main import Main
 
 
 # Función para iniciar código de selección
@@ -93,13 +93,19 @@ CTkScrollableDropdown(combobox, values=lista_IES, justify="left",
                       button_color="transparent", autocomplete=True)
 
 
-boton = ctk.CTkButton(master=frame, text='Generar selección', font=('Aptos', 16),
+boton = ctk.CTkButton(master=frame,
+                      text='Generar selección',
+                      font=('Aptos', 16),
                       command=funcion_boton)
 boton.pack(pady=10)
 
-caja = ctk.CTkTextbox(master=frame, width=1366, height=300,
-                      fg_color='light gray', text_color='black',
-                      font=('Aptos', 14), corner_radius=5)
+caja = ctk.CTkTextbox(master=frame, width=1366,
+                      height=300,
+                      fg_color='light gray',
+                      text_color='black',
+                      font=('Aptos', 14),
+                      corner_radius=5,
+                      state='disabled')
 caja.pack(pady=10)
 
 boton_limpiar = ctk.CTkButton(master=frame, text='Limpiar cuadro de texto',
