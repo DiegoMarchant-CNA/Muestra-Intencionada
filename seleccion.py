@@ -12,12 +12,12 @@ def caso_1_AC(df):
     if N_prog == 1:
         data_seleccion_0 = np.empty((1, len(df.columns)), dtype=object)
         data_seleccion_0[0] = df.iloc[0]
-    elif N_prog > 1 and N_prog < 10:
+    elif N_prog >= 2 and N_prog <= 9:
         data_seleccion_0 = np.empty((2, len(df.columns)), dtype=object)
         elegir = np.random.choice(np.arange(N_prog), 2, replace=False)
         data_seleccion_0[0] = df.iloc[elegir[0]]
         data_seleccion_0[1] = df.iloc[elegir[1]]
-    elif N_prog > 9:
+    elif N_prog >= 10:
         elegir = np.random.choice(np.arange(N_prog), 3, replace=False)
         data_seleccion_0 = np.empty((3, len(df.columns)), dtype=object)
         data_seleccion_0[0] = df.iloc[elegir[0]]
@@ -61,7 +61,6 @@ def caso_FFAA(df):
 # función Caso U_con_TNS:
 
 
-
 def funcion_seleccion(IES):
 
     PATH = 'DB_OK/{inst}.xlsx'.format(inst=IES)
@@ -88,7 +87,10 @@ def funcion_seleccion(IES):
     def formula_post(ac, ac_pre, ac_post):
         # Fórmula usada en el cálculo de índices
         frac = ac/(1 + ac_pre/ac_post)
-        valor = np.floor(frac + 0.5)
+        if frac - np.floor(frac) <= 0.4:
+            valor = np.floor(frac)
+        elif frac - np.floor(frac) >= 0.5:
+            valor = np.floor(frac) + 1
         return int(valor)
 
     if N_AC_post > 0:
@@ -99,7 +101,6 @@ def funcion_seleccion(IES):
         indice_post = 0
 
     # Revisar el caso N_AC = 1
-
 
     if N_AC == 1:
         seleccion_final = caso_1_AC(base)
@@ -122,6 +123,7 @@ def funcion_seleccion(IES):
 
         for n, area in enumerate(AREAS):
             base_AC = base[base['AC'] == area]
+            # Colocar índice 1..n al inicio
             if len(AC_bloqueada_TNS) > 0 and area == AC_bloqueada_TNS:
                 base_AC = base_AC[base_AC['TNS'] == 'Si']
             N = base_AC.shape[0]  # filas
@@ -134,7 +136,6 @@ def funcion_seleccion(IES):
         # Exportar tabla de selección antes de reemplazo
 
         seleccion_0.to_excel('DB_OK/selección/{inst}_selección_inicial.xlsx'.format(inst=IES),
-
                              index=False)
 
         # Algoritmo de reemplazo
