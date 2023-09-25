@@ -29,6 +29,7 @@ def Main(foldername, off_path, mat_path, titul_path):
         """"Carga archivo, normaliza strings y retorna Data Frame."""
         x = pd.read_csv(archivo, encoding='utf-8', sep=";",
                         low_memory=False)
+        x.columns = x.columns.str.strip()
         x.columns = x.columns.str.replace(' ', '')
         regex_reemplazo = r'\W'
         x.columns = x.columns.str.replace(regex_reemplazo, '', regex=True)
