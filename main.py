@@ -9,13 +9,22 @@ import numpy as np
 import pandas as pd
 
 
-def Main(foldername):
+def Main(foldername, off_path, mat_path, titul_path):
     """Ejecuta programa para ordenar bases de datos
     y guardarlas en archivo xlsx en el directorio foldername.
 
     Keyword arguments:
     foldername -- Nombre del directorio donde guardar archivos
     """
+
+    # Nuevo archivo limpiador para archivos de base SIES
+    # def lecto_limpiador(archivo):
+    #     x = pd.read_csv(archivo,
+    #                     encoding='Windows 1252',
+    #                     sep=";",
+    #                     low_memory=False)
+    #     x.columns = x.columns.str.strip()
+
     def lecto_limpiador(archivo):
         """"Carga archivo, normaliza strings y retorna Data Frame."""
         x = pd.read_csv(archivo, encoding='utf-8', sep=";",
@@ -29,18 +38,25 @@ def Main(foldername):
         x.columns = x.columns.str.upper()
         return x
 
-    matricula = lecto_limpiador('DB/matricula_filtrado.csv')
-    titulados = lecto_limpiador('DB/titulados_filtrado.csv')
+    matricula = lecto_limpiador(mat_path)
+    titulados = lecto_limpiador(titul_path)
 
     def codigo_corto(df):
         """Cambiar código de la carrera por el código único reducido."""
-        x = df['CODIGOCARRERA']
+        x = df
         regex_codigo = r"[SJV]\d*"
         x = x.str.replace(pat=regex_codigo, repl='', regex=True)
         return x
 
-    matricula['CODIGOCARRERA'] = codigo_corto(matricula)
-    titulados['CODIGOCARRERA'] = codigo_corto(titulados)
+    def codigo_corto_sede(df):
+        """Cambiar código de la carrera por el código único reducido."""
+        x = df
+        regex_codigo = r"[JV]\d*"
+        x = x.str.replace(pat=regex_codigo, repl='', regex=True)
+        return x
+
+    matricula['CODIGOCARRERA'] = codigo_corto(matricula['CODIGOCARRERA'])
+    titulados['CODIGOCARRERA'] = codigo_corto(titulados['CODIGOCARRERA'])
 
     # Generar diccionario de sedes por código corto únicos.
     cod_no_duplicados = np.unique(matricula.CODIGOCARRERA)
