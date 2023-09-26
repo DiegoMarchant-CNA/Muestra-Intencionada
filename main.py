@@ -138,11 +138,15 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
 
     # Generar base con cruce
 
-    base_general = pd.merge(Base_oferta, Base_matricula, on='Código Corto', how='left')
+    base_general = pd.merge(Base_oferta,
+                            Base_matricula,
+                            on='Código Corto',
+                            how='left')
 
-    base_general = pd.merge(base_general, Base_titulados, on='Código Corto', how='left')
-
-    base_general.to_excel(path+'prueba.xlsx', index=False)
+    base_general = pd.merge(base_general,
+                            Base_titulados,
+                            on='Código Corto',
+                            how='left')
 
     # Proceder con la filtración. Se consideran las condiciones de:
     # Tener matrícula vigente de primer año > 0,
@@ -183,6 +187,23 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
     elegibles = np.intersect1d(np.intersect1d(programas,
                                set_matr_vigente), set_titulados)
 
+    # Agregar columna caso TNS
+
+    base_general.insert(base_general.shape[1], 'TNS', '')
+
+    base_general.loc[base_general['Nivel Carrera'] == TNS_str, 'TNS'] = 'Sí'
+
+    # Agregar columna con elegibilidad
+
+    base_general.insert(base_general.shape[1], 'Elegibles', '')
+
+    base_general.loc[np.isin(base_general['Código Corto'], elegibles),
+                     'Elegibles'] = 'Sí'
+
+    base_general.loc[base_general['Nivel Carrera'] == eemmoo_str,
+                     'Nivel Global'] = 'Postgrado'
+
+    base_general.to_excel(foldername + 'prueba.xlsx', index=False)
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -291,7 +312,6 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
 #                                                             index=True)
 
 #     tabla_elegible.to_excel(foldername + '/elegibles.xlsx', index=False)
-
 
 if __name__ == "__main__":
     foldername = sys.argv[1] if len(sys.argv) > 1 else "DB_OK/"
