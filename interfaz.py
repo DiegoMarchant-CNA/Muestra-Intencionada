@@ -6,6 +6,7 @@ import os
 import seleccion
 from CTkScrollableDropdown import CTkScrollableDropdown
 from main import Main
+import errno
 
 # Carpeta donde guardar todo lo nuevo
 
@@ -215,6 +216,14 @@ subtituloLabel = ctk.CTkLabel(frame_seleccion,
                               text='Elija la institución para hacer la MI',
                               font=('Aptos', 16))
 subtituloLabel.pack(pady=10)
+
+# Crear directorio en caso de no existir.
+if not os.path.exists(os.path.dirname(outputfolder + '/')):
+    try:
+        os.makedirs(os.path.dirname(outputfolder + '/'))
+    except OSError as exc:
+        if exc.errno != errno.EEXIST:
+            raise
 
 
 lista_IES = os.listdir(outputfolder)
