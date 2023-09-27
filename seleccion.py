@@ -60,6 +60,20 @@ def caso_FFAA(df):
 
 # función Caso U_con_TNS:
 
+def Seleccionar_prog(base: pd.DataFrame):
+    """
+    Función que escoge un programa aleatorio según reglamento
+    """
+    base = base.sort_values(by='Total Matriculados', ascending=False)
+    indices = np.arange(len(base))+1
+    base.insert(0, column='Índices', value=indices)
+    indice_elegido = int(np.random.choice(indices, size=1))
+    prog_elegido = base['Índices'] == indice_elegido
+    eleccion = base.loc[prog_elegido]
+    eleccion = eleccion.drop(columns='Índices')
+    eleccion_np = eleccion.to_numpy(copy=True)
+    return eleccion_np
+
 
 def funcion_seleccion(IES):
 
@@ -67,14 +81,24 @@ def funcion_seleccion(IES):
 
     base = pd.read_excel(PATH)
 
+    # Sólo trabajar con la base de elegibles
+
+    bool_elegibles = base['Elegibles'] == 'Sí'
+
+    base = base.loc[bool_elegibles]
+
+    # Constantes de columnas
+    AC = 'Área del conocimiento'
+    NIVEL = 'Nivel CNA'
+
     # Revisar número AC institución
-    AREAS = base['AC'].unique()
+    AREAS = base[AC].unique()
     N_AC = len(AREAS)
 
-    AC_pre = base[base['nivel'] == 'Pregrado']['AC'].unique()
+    AC_pre = base[base[NIVEL] == 'Pregrado'][AC].unique()
     N_AC_pre = len(AC_pre)
 
-    AC_post = base[base['nivel'] == 'Postgrado']['AC'].unique()
+    AC_post = base[base[NIVEL] == 'Postgrado'][AC].unique()
     N_AC_post = len(AC_post)
 
     print(['Número AC total = {fac}'.format(fac=N_AC)])
@@ -118,18 +142,15 @@ def funcion_seleccion(IES):
         AC_bloqueada_TNS = np.array([])
         if caso_TNS and caso_universidad:
             base_TNS = base[base['TNS'] == 'Si']
-            AC_TNS = base_TNS['AC'].unique()
+            AC_TNS = base_TNS[AC].unique()
             AC_bloqueada_TNS = np.random.choice(AC_TNS, size=1)
 
         for n, area in enumerate(AREAS):
-            base_AC = base[base['AC'] == area]
-            # Colocar índice 1..n al inicio
+            base_AC = base[base[AC] == area]
             if len(AC_bloqueada_TNS) > 0 and area == AC_bloqueada_TNS:
                 base_AC = base_AC[base_AC['TNS'] == 'Si']
-            N = base_AC.shape[0]  # filas
-            escoger = np.random.randint(N)
-            prog_elegido = base_AC.iloc[escoger]
-            data_seleccion_0[n] = prog_elegido
+            data_seleccion_0[n] = Seleccionar_prog(base_AC)
+
 
         seleccion_0 = pd.DataFrame(data=data_seleccion_0, columns=base.columns)
 
@@ -144,7 +165,7 @@ def funcion_seleccion(IES):
 
         # Cantidad de postgrados de la MI
 
-        hist_nivel_seleccion = seleccion_0['nivel'].value_counts()
+        hist_nivel_seleccion = seleccion_0[NIVEL].value_counts()
         if 'Postgrado' in hist_nivel_seleccion:
             post_en_MI = hist_nivel_seleccion['Postgrado']
         else:
@@ -170,10 +191,10 @@ def funcion_seleccion(IES):
 
         # Identificar áreas seleccionadas en exceso que también
         # estén en grupo en escasez
-        areas_en_exceso = seleccion_0[seleccion_0['nivel'] ==
-                                      nivel_en_exceso]['AC'].unique()
-        # areas_escasez = seleccion_0[seleccion_0['nivel'] ==
-        #                             nivel_escasez]['AC'].unique()
+        areas_en_exceso = seleccion_0[seleccion_0[NIVEL] ==
+                                      nivel_en_exceso][AC].unique()
+        # areas_escasez = seleccion_0[seleccion_0[NIVEL] ==
+        #                             nivel_escasez][AC].unique()
 
         if nivel_escasez == 'Pregrado':
             areas_base_escasez = AC_pre
@@ -205,13 +226,11 @@ def funcion_seleccion(IES):
         seleccion_final = seleccion_0.copy()
 
         for area in AC_reemplazo:
-            base_AC = base[base['AC'] == area]
-            base_AC = base_AC[base_AC['nivel'] == nivel_escasez]
-            N = base_AC.shape[0]  # filas
-            escoger = np.random.randint(N)
-            prog_elegido = base_AC.iloc[escoger]
-            bool_AC = seleccion_final['AC'] == area
-            seleccion_final[bool_AC] = prog_elegido.to_numpy()
+            base_AC = base[base[AC] == area]
+            base_AC = base_AC[base_AC[NIVEL] == nivel_escasez]
+            prog_elegido = Seleccionar_prog(base_AC)
+            bool_AC = seleccion_final[AC] == area
+            seleccion_final[bool_AC] = prog_elegido
 
     # Agregar sedes a cada programa elegido
 
@@ -221,11 +240,11 @@ def funcion_seleccion(IES):
     seleccion_final.insert(7, 'Sede 2', '')
     seleccion_final.insert(8, 'Sede 3', '')
 
-    Sedes = pd.read_excel('DB_OK/sedes.xlsx', index_col=0)
+    Sedes = pd.read_excel('DB_OK/Sedes.xlsx', index_col=0)
 
     # Elegir las sedes de manera aleatoria, considera los 3 casos posibles
     # y escoge 1, 2 o 3 sedes para cada caso
-
+    """
     for i in np.arange(len(seleccion_final)):
         cod = seleccion_final['Codigo'][i]
         if len(Sedes.loc[cod].dropna()) in np.arange(1, 3 + 1):
@@ -247,31 +266,31 @@ def funcion_seleccion(IES):
             seleccion_final['Sede 1'][i] = sedes_seleccionadas[0]
             seleccion_final['Sede 2'][i] = sedes_seleccionadas[1]
             seleccion_final['Sede 3'][i] = sedes_seleccionadas[2]
-
+    """
     # Guardar en excel
 
     seleccion_final.to_excel('DB_OK/selección/{inst}_selección.xlsx'.format(inst=IES),
                              index=False)
 
-    # Generar tabla con datos de la IES que se calculó
+    # # Generar tabla con datos de la IES que se calculó
 
-    demografia_IES = np.empty((1, 6), dtype=object)
+    # demografia_IES = np.empty((1, 6), dtype=object)
 
-    demografia_IES[0, 0] = IES
-    demografia_IES[0, 1] = indice_pre
-    demografia_IES[0, 2] = indice_post
-    demografia_IES[0, 3] = len(base[base['nivel'] == 'Pregrado'])
-    demografia_IES[0, 4] = len(base[base['nivel'] == 'Postgrado'])
-    if 'Si' in base['TNS'].unique():
-        demografia_IES[0, 5] = 'Si'
-    else:
-        demografia_IES[0, 5] = 'No'
+    # demografia_IES[0, 0] = IES
+    # demografia_IES[0, 1] = indice_pre
+    # demografia_IES[0, 2] = indice_post
+    # demografia_IES[0, 3] = len(base[base[NIVEL] == 'Pregrado'])
+    # demografia_IES[0, 4] = len(base[base[NIVEL] == 'Postgrado'])
+    # if 'Si' in base['TNS'].unique():
+    #     demografia_IES[0, 5] = 'Si'
+    # else:
+    #     demografia_IES[0, 5] = 'No'
 
-    columnas_demografia = ['IES', 'indice_pre',
-                           'indice_post', 'pre_elegibles',
-                           'post_elegibles', 'Tiene TNS']
+    # columnas_demografia = ['IES', 'indice_pre',
+    #                        'indice_post', 'pre_elegibles',
+    #                        'post_elegibles', 'Tiene TNS']
 
-    demografia_IES = pd.DataFrame(data=demografia_IES,
-                                  columns=columnas_demografia)
+    # demografia_IES = pd.DataFrame(data=demografia_IES,
+    #                               columns=columnas_demografia)
 
     return True
