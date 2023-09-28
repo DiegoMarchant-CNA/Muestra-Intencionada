@@ -28,6 +28,14 @@ def Main(foldername):
         x.columns = x.columns.str.decode('utf-8')
         x.columns = x.columns.str.upper()
         return x
+    
+    # Crear directorio en caso de no existir.
+    if not os.path.exists(os.path.dirname(foldername)):
+        try:
+            os.makedirs(os.path.dirname(foldername))
+        except OSError as exc:
+            if exc.errno != errno.EEXIST:
+                raise
 
     matricula = lecto_limpiador('DB/matricula_filtrado.csv')
     titulados = lecto_limpiador('DB/titulados_filtrado.csv')
@@ -55,7 +63,7 @@ def Main(foldername):
     df_sedes = pd.DataFrame.from_dict(data=sedes, orient='Index')
 
     # Guardar sedes en un archivo independiente
-    df_sedes.to_excel('DB_OK/sedes.xlsx')
+    df_sedes.to_excel(foldername + 'sedes.xlsx')
 
     # Hacer conjunto de carreras elegibles por requisito: debe tener matrícula,
     # titulados, excluir todo lo que no sea EEMMOO en postítulo,
@@ -115,15 +123,6 @@ def Main(foldername):
     tabla_elegible = tabla_elegible.replace('Postítulo', 'Postgrado')
 
     # De acá en adelante se trabajará con la tabla_elegible para los análisis.
-
-    # Crear directorio en caso de no existir.
-    if not os.path.exists(os.path.dirname(foldername)):
-        try:
-            os.makedirs(os.path.dirname(foldername))
-        except OSError as exc:
-            if exc.errno != errno.EEXIST:
-                raise
-
     # Guardar tabla de datos  y elejibles en formato .xlsx.
     for i in tabla_elegible['IES'].unique():
         directorio = foldername + '/{fies}.xlsx'.format(fies=i)
