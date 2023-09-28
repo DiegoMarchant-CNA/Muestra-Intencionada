@@ -1,73 +1,48 @@
 # coding=utf-8
 import numpy as np
 import pandas as pd
+import logging
 # import sys
 # import os
 
-# función Caso_1_AC:
+# Set logger para selección
+
+seleccion_log = logging.getLogger('Seleccion')
 
 
-def caso_1_AC(df):
-    N_prog = df.shape[0]
-    if N_prog == 1:
-        data_seleccion_0 = np.empty((1, len(df.columns)), dtype=object)
-        data_seleccion_0[0] = df.iloc[0]
-    elif N_prog >= 2 and N_prog <= 9:
-        data_seleccion_0 = np.empty((2, len(df.columns)), dtype=object)
-        elegir = np.random.choice(np.arange(N_prog), 2, replace=False)
-        data_seleccion_0[0] = df.iloc[elegir[0]]
-        data_seleccion_0[1] = df.iloc[elegir[1]]
-    elif N_prog >= 10:
-        elegir = np.random.choice(np.arange(N_prog), 3, replace=False)
-        data_seleccion_0 = np.empty((3, len(df.columns)), dtype=object)
-        data_seleccion_0[0] = df.iloc[elegir[0]]
-        data_seleccion_0[1] = df.iloc[elegir[1]]
-        data_seleccion_0[2] = df.iloc[elegir[2]]
-    return pd.DataFrame(data=data_seleccion_0, columns=df.columns)
+# Función para seleccionar N programas
 
-# función Caso_FFAA:
+def seleccionar_N_programas(base: pd.DataFrame, N):
+    """
+    Dados un DataFrame y un N, selecciona N filas de este DF
+    según reglamento y devuelve un DF con sólo estas columnas
+    """
+    base = base.sort_values(by='Matrícula Total', ascending=False)
+    indices = np.arange(len(base))+1
+    base.insert(0, column='Índices', value=indices)
+    indices_elegidos = np.random.choice(indices, size=N)
+    seleccion_log.info('Se seleccionaron los programas: ' +
+                       f'{indices_elegidos.tostring()}')
+    programas_elegidos = np.isin(base['Índices'], indices_elegidos)
+    eleccion = base.loc[programas_elegidos]
+    eleccion = eleccion.drop(columns='Índices')
+    return eleccion
 
 
-def caso_FFAA(df):
-    N_prog = df.shape[0]
-    if N_prog == 1:
-        data_seleccion_0 = np.empty((1, len(df.columns)), dtype=object)
-        data_seleccion_0[0] = df.iloc[0]
-    if N_prog == 2:
-        data_seleccion_0 = np.empty((2, len(df.columns)), dtype=object)
-        data_seleccion_0[0] = df.iloc[0]
-        data_seleccion_0[1] = df.iloc[1]
-    elif N_prog > 2 and N_prog <= 15:
-        data_seleccion_0 = np.empty((2, len(df.columns)), dtype=object)
-        elegir = np.random.choice(np.arange(N_prog), 2, replace=False)
-        data_seleccion_0[0] = df.iloc[elegir[0]]
-        data_seleccion_0[1] = df.iloc[elegir[1]]
-    elif N_prog > 15 and N_prog <= 30:
-        elegir = np.random.choice(np.arange(N_prog), 3, replace=False)
-        data_seleccion_0 = np.empty((3, len(df.columns)), dtype=object)
-        data_seleccion_0[0] = df.iloc[elegir[0]]
-        data_seleccion_0[1] = df.iloc[elegir[1]]
-        data_seleccion_0[2] = df.iloc[elegir[2]]
-    elif N_prog > 30:
-        elegir = np.random.choice(np.arange(N_prog), 4, replace=False)
-        data_seleccion_0 = np.empty((4, len(df.columns)), dtype=object)
-        data_seleccion_0[0] = df.iloc[elegir[0]]
-        data_seleccion_0[1] = df.iloc[elegir[1]]
-        data_seleccion_0[2] = df.iloc[elegir[2]]
-        data_seleccion_0[3] = df.iloc[elegir[3]]
-    return pd.DataFrame(data=data_seleccion_0, columns=df.columns)
-
-
-# función Caso U_con_TNS:
+# LA FUNCIÓN SELECCIONADORA
 
 def Seleccionar_prog(base: pd.DataFrame):
     """
-    Función que escoge un programa aleatorio según reglamento
+    Función que escoge un programa aleatorio según reglamento,
+    recibe una base ya filtrada según AC y escoge de ella una
+    carrera o programa
     """
-    base = base.sort_values(by='Total Matriculados', ascending=False)
+    base = base.sort_values(by='Matrícula Total', ascending=False)
     indices = np.arange(len(base))+1
     base.insert(0, column='Índices', value=indices)
     indice_elegido = int(np.random.choice(indices, size=1))
+    seleccion_log.info('Se selecciona programa: ' +
+                       f'{indice_elegido.tostring()}')
     prog_elegido = base['Índices'] == indice_elegido
     eleccion = base.loc[prog_elegido]
     eleccion = eleccion.drop(columns='Índices')
@@ -75,11 +50,108 @@ def Seleccionar_prog(base: pd.DataFrame):
     return eleccion_np
 
 
-def funcion_seleccion(IES):
+def Seleccionar_sede(sedes_funcion: pd.DataFrame):
+    """
+    Función que escoge sedes aleatorias según reglamento,
+    recibe una base ya filtrada para un código corto específico
+    (en otras palabras, una carrera/programa) y determina tanto
+    número de sedes a agregar como las sedes escogidas
+    El output siempre será un array de 3 elementos
+    """
+    sedes_funcion = sedes_funcion.sort_values(by='Matrícula Total',
+                                              ascending=False)
+    indices = np.arange(len(sedes_funcion))+1
+    sedes_funcion.insert(0, column='Índices', value=indices)
+    if len(indices) in np.arange(1, 3 + 1):
+        indices_elegidos = np.random.choice(indices, size=1)
+    elif len(indices) in np.arange(4, 9 + 1):
+        indices_elegidos = np.random.choice(indices, size=2)
+    elif len(indices) >= 10:
+        indices_elegidos = np.random.choice(indices, size=3)
+    seleccion_log.info('Se seleccionaron las sedes: ' +
+                       f'{indices_elegidos.tostring()}')
+    sedes_elegidas = np.isin(sedes_funcion['Índices'], indices_elegidos)
+    seleccion_log.info('Se seleccionaron las sedes: ' +
+                       f'{sedes_elegidas.tostring()}')
+    eleccion = sedes_funcion.loc[sedes_elegidas]
+    eleccion_sedes = eleccion['Nombre Sede']
+    eleccion_np = eleccion_sedes.to_numpy(copy=True)
+    while len(eleccion_np) < 3:
+        eleccion_np = np.append(eleccion_np, [''])
+    return eleccion_np
 
-    PATH = 'DB_OK/{inst}.xlsx'.format(inst=IES)
 
-    base = pd.read_excel(PATH)
+# Elegir las sedes de manera aleatoria, considera los 3 casos posibles
+# y escoge 1, 2 o 3 sedes para cada caso
+
+def agregar_sedes(base, base_sedes):
+    """
+    Agrega las sedes a la base, iterando sobre cada programa
+    que contenga la selección. Esta función se usa en el caso de
+    la selección final (con o sin reemplazo)
+    """
+    for codigo in base['Código Corto']:
+        sedes_codigo = base_sedes.loc[base_sedes['Código Corto'] == codigo]
+        sedes_seleccionadas = Seleccionar_sede(sedes_codigo)
+        base.loc[base['Código Corto'] == codigo,
+                 ['Sede 1', 'Sede 2', 'Sede 3']] = sedes_seleccionadas
+
+
+# función Caso_1_AC:
+
+def caso_1_AC(df):
+    """
+    Recibe un DataFrame con la base de carreras y retorna DF
+    con sólo elegibles según reglas en caso con 1 AC
+    """
+    N_prog = df.shape[0]
+    if N_prog == 1:
+        programas = seleccionar_N_programas(df, 1)
+    elif N_prog >= 2 and N_prog <= 9:
+        programas = seleccionar_N_programas(df, 2)
+    elif N_prog >= 10:
+        programas = seleccionar_N_programas(df, 3)
+    return programas
+
+
+# función Caso_FFAA:
+
+def caso_FFAA(df):
+    """
+    Recibe un DataFrame con la base de carreras y retorna DF
+    con sólo elegibles según reglas de FFAA
+    """
+    N_prog = df.shape[0]
+    if N_prog == 1:
+        programas = seleccionar_N_programas(df, 1)
+    if N_prog == 2:
+        programas = seleccionar_N_programas(df, 2)
+    elif N_prog > 2 and N_prog <= 15:
+        programas = seleccionar_N_programas(df, 2)
+    elif N_prog > 15 and N_prog <= 30:
+        programas = seleccionar_N_programas(df, 3)
+    elif N_prog > 30:
+        programas = seleccionar_N_programas(df, 4)
+    return programas
+
+
+def funcion_seleccion(IES: str):
+
+    seleccion_log.info(f'Se inicia selección para la IES: {IES}')
+
+    PATH_base = 'DB_OK/{inst}.xlsx'.format(inst=IES)
+    PATH_sedes = 'DB_OK/Sedes.xlsx'
+
+    base = pd.read_excel(PATH_base)
+    Sedes = pd.read_excel(PATH_sedes)
+
+    # Agregar nuevas columnas donde irán las sedes
+
+    N_columnas = base.shape[1]
+
+    base.insert(N_columnas, 'Sede 1', '')
+    base.insert(N_columnas + 1, 'Sede 2', '')
+    base.insert(N_columnas + 2, 'Sede 3', '')
 
     # Sólo trabajar con la base de elegibles
 
@@ -151,7 +223,6 @@ def funcion_seleccion(IES):
                 base_AC = base_AC[base_AC['TNS'] == 'Si']
             data_seleccion_0[n] = Seleccionar_prog(base_AC)
 
-
         seleccion_0 = pd.DataFrame(data=data_seleccion_0, columns=base.columns)
 
         # Exportar tabla de selección antes de reemplazo
@@ -161,6 +232,7 @@ def funcion_seleccion(IES):
                              + '{inst}_selección_inicial.xlsx'.format(inst=IES),
                              index=False)
 
+        # -------------------------------------------------------------
         # Algoritmo de reemplazo
 
         # Cantidad de postgrados de la MI
@@ -173,10 +245,13 @@ def funcion_seleccion(IES):
 
         # Verificar grupo en exceso
         if post_en_MI == indice_post:
-            print('Terminado')
-            seleccion_0.to_excel('DB_OK/selección/{inst}_selección.xlsx'.format(inst=IES),
-                                 index=False)
+            print('No se realizó reemplazo')
             seleccion_final = seleccion_0
+            agregar_sedes(seleccion_final, Sedes)
+
+            # Guardar en excel
+            seleccion_final.to_excel(f'DB_OK/selección/{IES}_selección.xlsx',
+                                     index=False)
             return True
         elif post_en_MI > indice_post:
             print('Excedente en Postgrado')
@@ -232,65 +307,13 @@ def funcion_seleccion(IES):
             bool_AC = seleccion_final[AC] == area
             seleccion_final[bool_AC] = prog_elegido
 
-    # Agregar sedes a cada programa elegido
+    # Agregar sedes en el caso con reemplazo
 
-    # Nuevas columnas donde escribir las sedes
+    agregar_sedes(seleccion_final, Sedes)
 
-    seleccion_final.insert(6, 'Sede 1', '')
-    seleccion_final.insert(7, 'Sede 2', '')
-    seleccion_final.insert(8, 'Sede 3', '')
-
-    Sedes = pd.read_excel('DB_OK/Sedes.xlsx', index_col=0)
-
-    # Elegir las sedes de manera aleatoria, considera los 3 casos posibles
-    # y escoge 1, 2 o 3 sedes para cada caso
-    """
-    for i in np.arange(len(seleccion_final)):
-        cod = seleccion_final['Codigo'][i]
-        if len(Sedes.loc[cod].dropna()) in np.arange(1, 3 + 1):
-            sedes_seleccionadas = np.random.choice(Sedes.loc[cod].dropna(),
-                                                   size=1,
-                                                   replace=False)
-            seleccion_final['Sede 1'][i] = sedes_seleccionadas[0]
-        elif len(Sedes.loc[cod].dropna()) in np.arange(4, 9 + 1):
-
-            sedes_seleccionadas = np.random.choice(Sedes.loc[cod].dropna(),
-                                                   size=2,
-                                                   replace=False)
-            seleccion_final['Sede 1'][i] = sedes_seleccionadas[0]
-            seleccion_final['Sede 2'][i] = sedes_seleccionadas[1]
-        elif len(Sedes.loc[cod].dropna()) >= 10:
-            sedes_seleccionadas = np.random.choice(Sedes.loc[cod].dropna(),
-                                                   size=3,
-                                                   replace=False)
-            seleccion_final['Sede 1'][i] = sedes_seleccionadas[0]
-            seleccion_final['Sede 2'][i] = sedes_seleccionadas[1]
-            seleccion_final['Sede 3'][i] = sedes_seleccionadas[2]
-    """
     # Guardar en excel
 
-    seleccion_final.to_excel('DB_OK/selección/{inst}_selección.xlsx'.format(inst=IES),
+    seleccion_final.to_excel(f'DB_OK/selección/{IES}_selección.xlsx',
                              index=False)
-
-    # # Generar tabla con datos de la IES que se calculó
-
-    # demografia_IES = np.empty((1, 6), dtype=object)
-
-    # demografia_IES[0, 0] = IES
-    # demografia_IES[0, 1] = indice_pre
-    # demografia_IES[0, 2] = indice_post
-    # demografia_IES[0, 3] = len(base[base[NIVEL] == 'Pregrado'])
-    # demografia_IES[0, 4] = len(base[base[NIVEL] == 'Postgrado'])
-    # if 'Si' in base['TNS'].unique():
-    #     demografia_IES[0, 5] = 'Si'
-    # else:
-    #     demografia_IES[0, 5] = 'No'
-
-    # columnas_demografia = ['IES', 'indice_pre',
-    #                        'indice_post', 'pre_elegibles',
-    #                        'post_elegibles', 'Tiene TNS']
-
-    # demografia_IES = pd.DataFrame(data=demografia_IES,
-    #                               columns=columnas_demografia)
 
     return True
