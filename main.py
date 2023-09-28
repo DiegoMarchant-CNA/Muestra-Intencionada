@@ -28,7 +28,7 @@ def Main(foldername):
         x.columns = x.columns.str.decode('utf-8')
         x.columns = x.columns.str.upper()
         return x
-    
+
     # Crear directorio en caso de no existir.
     if not os.path.exists(os.path.dirname(foldername)):
         try:
