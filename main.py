@@ -135,4 +135,4 @@ def Main(foldername):
 
 if __name__ == "__main__":
     foldername = sys.argv[1] if len(sys.argv) > 1 else "DB_OK"
-    Main(foldername)
+    Main(foldername + "/")
