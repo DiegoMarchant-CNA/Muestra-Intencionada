@@ -9,13 +9,22 @@ import numpy as np
 import pandas as pd
 
 
-def Main(foldername):
+def Main(foldername, off_path, mat_path, titul_path):
     """Ejecuta programa para ordenar bases de datos
     y guardarlas en archivo xlsx en el directorio foldername.
 
     Keyword arguments:
     foldername -- Nombre del directorio donde guardar archivos
     """
+
+    # Nuevo archivo limpiador para archivos de base SIES
+    # def lecto_limpiador(archivo):
+    #     x = pd.read_csv(archivo,
+    #                     encoding='Windows 1252',
+    #                     sep=";",
+    #                     low_memory=False)
+    #     x.columns = x.columns.str.strip()
+
     def lecto_limpiador(archivo):
         """"Carga archivo, normaliza strings y retorna Data Frame."""
         x = pd.read_csv(archivo, encoding='utf-8', sep=";",
@@ -29,25 +38,36 @@ def Main(foldername):
         x.columns = x.columns.str.upper()
         return x
 
-    matricula = lecto_limpiador('DB/matricula_filtrado.csv')
-    titulados = lecto_limpiador('DB/titulados_filtrado.csv')
+    matricula = lecto_limpiador(mat_path)
+    titulados = lecto_limpiador(titul_path)
 
     def codigo_corto(df):
         """Cambiar código de la carrera por el código único reducido."""
-        x = df['CODIGOCARRERA']
+        x = df
         regex_codigo = r"[SJV]\d*"
         x = x.str.replace(pat=regex_codigo, repl='', regex=True)
         return x
 
-    matricula['CODIGOCARRERA'] = codigo_corto(matricula)
-    titulados['CODIGOCARRERA'] = codigo_corto(titulados)
+    def codigo_corto_sede(df):
+        """Cambiar código de la carrera por el código único reducido."""
+        x = df
+        regex_codigo = r"[JV]\d*"
+        x = x.str.replace(pat=regex_codigo, repl='', regex=True)
+        return x
 
-    # Generar diccionario de sedes por código reducidos.
-    cod_res = np.unique(matricula.CODIGOCARRERA)
+    matricula['CODIGOCARRERA'] = codigo_corto(matricula['CODIGOCARRERA'])
+    titulados['CODIGOCARRERA'] = codigo_corto(titulados['CODIGOCARRERA'])
+
+    # Generar diccionario de sedes por código corto únicos.
+    cod_no_duplicados = np.unique(matricula.CODIGOCARRERA)
 
     sedes = {}
 
-    for codigo in cod_res:
+# Diccionario = matriz sin orden particular
+# {código1: [sede1, sede2, sede3, ...],
+# código2: ...}
+
+    for codigo in cod_no_duplicados:
         sedes.update({codigo: np.unique(matricula['NOMBRESEDE'][
                                         matricula['CODIGOCARRERA'] == codigo
                                         ])})
@@ -57,14 +77,15 @@ def Main(foldername):
     # Guardar sedes en un archivo independiente
     df_sedes.to_excel('DB_OK/sedes.xlsx')
 
-    # Hacer conjunto de carreras elegibles por requisito: debe tener matrícula,
-    # titulados, excluir todo lo que no sea EEMMOO en postítulo,
+    # Hacer conjunto de carreras elegibles por requisito: debe tener
+    # matrícula vigente de primer año > 0,
+    # titulados, sólo seleccionar EEMMOO en postítulo,
 
     # Condiciones escritas para filtrar.
     eemmoo_str = "Especialidad Médica U Odontológica"
     bachi_pc_ci_str = "Bachillerato, Ciclo Inicial o Plan Común"
     TNS_str = 'Técnico de Nivel Superior'
-    Post_str = 'Postítulo'
+    Postitulo_str = 'Postítulo'
 
     def Filtro_codigos(df, condition_mask):
         """Retorna Data Frame df filtrado según condition_mask"""
@@ -82,7 +103,7 @@ def Main(foldername):
         matricula['CARRERACLASIFICACIONNIVEL1'] == eemmoo_str)
     pre_post = Filtro_codigos(
         matricula,
-        matricula['NIVELGLOBAL'] != Post_str)
+        matricula['NIVELGLOBAL'] != Postitulo_str)
     bachi_pc_ci = Filtro_codigos(
         matricula,
         matricula['CARRERACLASIFICACIONNIVEL1'] == bachi_pc_ci_str)
@@ -117,22 +138,22 @@ def Main(foldername):
     # De acá en adelante se trabajará con la tabla_elegible para los análisis.
 
     # Crear directorio en caso de no existir.
-    if not os.path.exists(os.path.dirname(foldername)):
+    if not os.path.exists(os.path.dirname(foldername + '/')):
         try:
-            os.makedirs(os.path.dirname(foldername))
+            os.makedirs(os.path.dirname(foldername + '/'))
         except OSError as exc:
             if exc.errno != errno.EEXIST:
                 raise
 
-    # Guardar tabla de datos  y elejibles en formato .xlsx.
+    # Guardar tabla de datos  y elegibles en formato .xlsx.
     for i in tabla_elegible['IES'].unique():
         directorio = foldername + '/{fies}.xlsx'.format(fies=i)
         tabla_elegible[tabla_elegible['IES'] == i].to_excel(directorio,
-                                                            index=False)
+                                                            index=True)
 
     tabla_elegible.to_excel(foldername + '/elegibles.xlsx', index=False)
 
 
 if __name__ == "__main__":
-    foldername = sys.argv[1] if len(sys.argv) > 1 else "DB_OK"
+    foldername = sys.argv[1] if len(sys.argv) > 1 else "DB_OK/"
     Main(foldername)
