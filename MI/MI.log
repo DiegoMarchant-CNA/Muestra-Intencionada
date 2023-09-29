@@ -842,3 +842,4 @@
 [ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x01\x00\x00\x00'
 [ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x01\x00\x00'
 [ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se guarda seleccion en archivo../DB_OK/selección/UNIVERSIDAD SAN SEBASTIAN_selección.xlsx
+[ 29-09-2023 01:32:50 ] - Interfaz - INFO - Inicializar interfaz grafica
