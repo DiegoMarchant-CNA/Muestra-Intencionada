@@ -72,7 +72,7 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
 
     Sedes = Sedes.groupby(by=['CÓDIGO CARRERA', 'NOMBRE SEDE'],
                           as_index=False).sum()
-    
+
     Sedes = Sedes.rename(columns={
                         'CÓDIGO CARRERA': 'Código Corto',
                         'NOMBRE SEDE': 'Nombre Sede',
@@ -238,7 +238,7 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
     # Quitar los postítulos
 
     bool_postitulo = base_general['Nivel CNA'].str.contains('Postítulo',
-                                                             case=False)
+                                                            case=False)
     base_general = base_general.loc[~bool_postitulo]
 
     base_general.to_excel(foldername + '/prueba.xlsx', index=False)
@@ -248,7 +248,7 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
         directorio = foldername + '/{fies}.xlsx'.format(fies=i)
         base_general[base_general['IES'] == i].to_excel(directorio,
                                                         index=False)
-        main_log.info(f'IES {i} guardado en archivo {directorio}')    
+        main_log.info(f'IES {i} guardado en archivo {directorio}')
 
 
 if __name__ == "__main__":
