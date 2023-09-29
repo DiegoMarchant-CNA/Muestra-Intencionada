@@ -139,8 +139,8 @@ def funcion_seleccion(IES: str):
 
     seleccion_log.info(f'Se inicia seleccion para la IES: {IES}')
 
-    PATH_base = f'DB_OK/{IES}.xlsx'
-    PATH_sedes = 'DB_OK/Sedes.xlsx'
+    PATH_base = f'../DB_OK/{IES}.xlsx'
+    PATH_sedes = '../DB_OK/Sedes.xlsx'
 
     base = pd.read_excel(PATH_base)
     Sedes = pd.read_excel(PATH_sedes)
@@ -238,7 +238,7 @@ def funcion_seleccion(IES: str):
 
         # Exportar tabla de selección antes de reemplazo
 
-        PATH_seleccion_inicial = ('DB_OK/'
+        PATH_seleccion_inicial = ('../DB_OK/'
                                   + 'selección/'
                                   + f'{IES}_selección_inicial.xlsx')
 
@@ -265,7 +265,7 @@ def funcion_seleccion(IES: str):
             agregar_sedes(seleccion_final, Sedes)
 
             # Guardar en excel
-            PATH_seleccion_final = f'DB_OK/selección/{IES}_selección.xlsx'
+            PATH_seleccion_final = f'../DB_OK/selección/{IES}_selección.xlsx'
             seleccion_final.to_excel(PATH_seleccion_final,
                                      index=False)
             seleccion_log.info('Se guarda seleccion en archivo' +
@@ -331,7 +331,7 @@ def funcion_seleccion(IES: str):
     agregar_sedes(seleccion_final, Sedes)
 
     # Guardar en excel
-    PATH_seleccion_final = f'DB_OK/selección/{IES}_selección.xlsx'
+    PATH_seleccion_final = f'../DB_OK/selección/{IES}_selección.xlsx'
     seleccion_final.to_excel(PATH_seleccion_final,
                              index=False)
     seleccion_log.info('Se guarda seleccion en archivo' +

@@ -34,7 +34,18 @@ interfaz_log.addHandler(handler)
 
 # Carpeta donde guardar todo lo nuevo
 
-outputfolder = "DB_OK"
+outputfolder = "../DB_OK"
+
+# Verificar existencia de directorio.
+# Crear directorio en caso de no existir.
+for nombre_directorio in ["", "selección/", "elegibles/"]:
+    directorio = outputfolder + "/" + nombre_directorio
+    if not os.path.exists(os.path.dirname(directorio)):
+        try:
+            os.makedirs(os.path.dirname(directorio))
+        except OSError as exc:
+            if exc.errno != errno.EEXIST:
+                raise
 
 # Configuración inicial de la app
 
@@ -257,14 +268,6 @@ combobox.pack(pady=10)
 
 CTkScrollableDropdown(combobox, values=lista_IES, justify="left",
                       button_color="transparent", autocomplete=True)
-
-# Crear directorio en caso de no existir.
-if not os.path.exists(os.path.dirname(outputfolder + '/')):
-    try:
-        os.makedirs(os.path.dirname(outputfolder + '/'))
-    except OSError as exc:
-        if exc.errno != errno.EEXIST:
-            raise
 
 boton = ctk.CTkButton(master=frame_seleccion,
                       text='Generar selección',

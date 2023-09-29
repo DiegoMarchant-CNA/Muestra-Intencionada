@@ -758,3 +758,87 @@
 [ 28-09-2023 22:55:43 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x01\x00\x00\x00'
 [ 28-09-2023 22:55:43 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x01'
 [ 28-09-2023 22:55:43 ] - Seleccion - INFO - Se guarda seleccion en archivoDB_OK/selección/UNIVERSIDAD SANTO TOMAS_selección.xlsx
+[ 29-09-2023 01:04:57 ] - Interfaz - INFO - Inicializar interfaz grafica
+[ 29-09-2023 01:08:41 ] - Interfaz - INFO - Inicializar interfaz grafica
+[ 29-09-2023 01:11:18 ] - Interfaz - INFO - Inicializar interfaz grafica
+[ 29-09-2023 01:22:40 ] - Interfaz - INFO - Inicializar interfaz grafica
+[ 29-09-2023 01:23:10 ] - Seleccion - INFO - Se inicia seleccion para la IES: UNIVERSIDAD DE CHILE
+[ 29-09-2023 01:23:25 ] - Seleccion - INFO - Se inicia seleccion para la IES: UNIVERSIDAD DE CHILE
+[ 29-09-2023 01:24:43 ] - Interfaz - INFO - Inicializar interfaz grafica
+[ 29-09-2023 01:25:08 ] - Seleccion - INFO - Se inicia seleccion para la IES: UNIVERSIDAD DE TALCA
+[ 29-09-2023 01:25:09 ] - Seleccion - DEBUG - Se filtra base para trabajar con elegibles
+[ 29-09-2023 01:25:09 ] - Seleccion - DEBUG - Número AC total = 10
+[ 29-09-2023 01:25:09 ] - Seleccion - DEBUG - Número AC pregrado = 9
+[ 29-09-2023 01:25:09 ] - Seleccion - DEBUG - Número AC postgrado = 9
+[ 29-09-2023 01:25:09 ] - Seleccion - INFO - Postgrados a escoger = 5
+[ 29-09-2023 01:25:09 ] - Seleccion - INFO - Pregrados a escoger = 5
+[ 29-09-2023 01:25:09 ] - Seleccion - INFO - Se ejecuta Seleccion caso General
+[ 29-09-2023 01:25:09 ] - Seleccion - INFO - Se selecciona programa: 5
+[ 29-09-2023 01:25:09 ] - Seleccion - INFO - Se selecciona programa: 12
+[ 29-09-2023 01:25:09 ] - Seleccion - INFO - Se selecciona programa: 4
+[ 29-09-2023 01:25:09 ] - Seleccion - INFO - Se selecciona programa: 14
+[ 29-09-2023 01:25:09 ] - Seleccion - INFO - Se selecciona programa: 1
+[ 29-09-2023 01:25:09 ] - Seleccion - INFO - Se selecciona programa: 1
+[ 29-09-2023 01:25:09 ] - Seleccion - INFO - Se selecciona programa: 7
+[ 29-09-2023 01:25:09 ] - Seleccion - INFO - Se selecciona programa: 4
+[ 29-09-2023 01:25:09 ] - Seleccion - INFO - Se selecciona programa: 1
+[ 29-09-2023 01:25:09 ] - Seleccion - INFO - Se selecciona programa: 2
+[ 29-09-2023 01:25:57 ] - Interfaz - INFO - Inicializar interfaz grafica
+[ 29-09-2023 01:26:03 ] - Seleccion - INFO - Se inicia seleccion para la IES: UNIVERSIDAD GABRIELA MISTRAL
+[ 29-09-2023 01:26:04 ] - Seleccion - DEBUG - Se filtra base para trabajar con elegibles
+[ 29-09-2023 01:26:04 ] - Seleccion - DEBUG - Número AC total = 5
+[ 29-09-2023 01:26:04 ] - Seleccion - DEBUG - Número AC pregrado = 4
+[ 29-09-2023 01:26:04 ] - Seleccion - DEBUG - Número AC postgrado = 2
+[ 29-09-2023 01:26:04 ] - Seleccion - INFO - Postgrados a escoger = 2
+[ 29-09-2023 01:26:04 ] - Seleccion - INFO - Pregrados a escoger = 3
+[ 29-09-2023 01:26:04 ] - Seleccion - INFO - Se ejecuta Seleccion caso General
+[ 29-09-2023 01:26:04 ] - Seleccion - INFO - Se selecciona programa: 1
+[ 29-09-2023 01:26:04 ] - Seleccion - INFO - Se selecciona programa: 1
+[ 29-09-2023 01:26:04 ] - Seleccion - INFO - Se selecciona programa: 1
+[ 29-09-2023 01:26:04 ] - Seleccion - INFO - Se selecciona programa: 2
+[ 29-09-2023 01:26:04 ] - Seleccion - INFO - Se selecciona programa: 1
+[ 29-09-2023 01:30:35 ] - Interfaz - INFO - Inicializar interfaz grafica
+[ 29-09-2023 01:31:42 ] - Interfaz - INFO - Inicializar interfaz grafica
+[ 29-09-2023 01:31:57 ] - Seleccion - INFO - Se inicia seleccion para la IES: UNIVERSIDAD SAN SEBASTIAN
+[ 29-09-2023 01:31:58 ] - Seleccion - DEBUG - Se filtra base para trabajar con elegibles
+[ 29-09-2023 01:31:58 ] - Seleccion - DEBUG - Número AC total = 10
+[ 29-09-2023 01:31:58 ] - Seleccion - DEBUG - Número AC pregrado = 9
+[ 29-09-2023 01:31:58 ] - Seleccion - DEBUG - Número AC postgrado = 7
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Postgrados a escoger = 4
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Pregrados a escoger = 6
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se ejecuta Seleccion caso General
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se selecciona programa: 1
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se selecciona programa: 6
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se selecciona programa: 1
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se selecciona programa: 6
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se selecciona programa: 1
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se selecciona programa: 1
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se selecciona programa: 2
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se selecciona programa: 1
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se selecciona programa: 1
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se selecciona programa: 1
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se guarda seleccion en archivo../DB_OK/selección/UNIVERSIDAD SAN SEBASTIAN_selección_inicial.xlsx
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Excedente en Pregrado
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Conjunto disponible para reemplazob'\x10\x9b\xfdt<\x02\x00\x000\xc5\xfet<\x02\x00\x00\xb0\x94\xfdt<\x02\x00\x00\xf0\xe7\xfdt<\x02\x00\x00'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se selecciona programa: 6
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x01\x00\x00\x00'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x01'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x01\x00\x00\x00'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x01'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x02\x00\x00\x00'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x00\x01\x00'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x02\x00\x00\x00'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x00\x01\x00'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x03\x00\x00\x00\x03\x00\x00\x00'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x00\x00\x01\x00'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x01\x00\x00\x00'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x01\x00'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x03\x00\x00\x00\x02\x00\x00\x00'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x00\x01\x01\x00'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x02\x00\x00\x00\x02\x00\x00\x00'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x00\x01\x00\x00'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x01\x00\x00\x00'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x01'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x01\x00\x00\x00'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x01\x00\x00'
+[ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se guarda seleccion en archivo../DB_OK/selección/UNIVERSIDAD SAN SEBASTIAN_selección.xlsx
