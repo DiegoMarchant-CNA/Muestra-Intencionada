@@ -843,3 +843,18 @@
 [ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x01\x00\x00'
 [ 29-09-2023 01:31:58 ] - Seleccion - INFO - Se guarda seleccion en archivo../DB_OK/selección/UNIVERSIDAD SAN SEBASTIAN_selección.xlsx
 [ 29-09-2023 01:32:50 ] - Interfaz - INFO - Inicializar interfaz grafica
+[ 29-09-2023 02:19:30 ] - Interfaz - INFO - Inicializar interfaz grafica
+[ 29-09-2023 02:19:39 ] - Seleccion - INFO - Se inicia seleccion para la IES: CFT CAMARA DE COMERCIO DE SANTIAGO
+[ 29-09-2023 02:19:40 ] - Seleccion - DEBUG - Se filtra base para trabajar con elegibles
+[ 29-09-2023 02:19:40 ] - Seleccion - DEBUG - Número AC total = 1
+[ 29-09-2023 02:19:40 ] - Seleccion - DEBUG - Número AC pregrado = 1
+[ 29-09-2023 02:19:40 ] - Seleccion - DEBUG - Número AC postgrado = 0
+[ 29-09-2023 02:19:40 ] - Seleccion - INFO - Pregrados a escoger = 1
+[ 29-09-2023 02:19:40 ] - Seleccion - INFO - Postgrados a escoger = 0
+[ 29-09-2023 02:19:40 ] - Seleccion - INFO - Se seleccionaron los programas: b'\x05\x00\x00\x00\x08\x00\x00\x00'
+[ 29-09-2023 02:19:40 ] - Seleccion - INFO - Se ejecuta Seleccion caso 1 AC
+[ 29-09-2023 02:19:40 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x01\x00\x00\x00'
+[ 29-09-2023 02:19:40 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x01'
+[ 29-09-2023 02:19:40 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x01\x00\x00\x00'
+[ 29-09-2023 02:19:40 ] - Seleccion - INFO - Se seleccionaron las sedes: b'\x01'
+[ 29-09-2023 02:19:40 ] - Seleccion - INFO - Se guarda seleccion en archivo../DB_OK/selección/CFT CAMARA DE COMERCIO DE SANTIAGO_selección.xlsx
