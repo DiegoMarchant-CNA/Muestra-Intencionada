@@ -1,4 +1,6 @@
+output/build
 DB_OK/seleccion
+*.xlsx
 IES por región.xlsx
 Casos TNS a revisar.xlsx
 ShareX/Screenshots/2023-08/POWERPNT_GvZcZKuSb2.png
@@ -261,3 +263,4 @@ DB_OK/selección/UNIVERSIDAD SANTO TOMAS_selección_inicial.xlsx
 DB/MATRICULA OFICIAL 2023 09_06_2023 WEB.csv
 DB/Oferta_Academica_2023_SIES_25_05_2023_E.csv
 DB/TITULADOS_WEB_2022_30_05_2023_E-1.csv
+DB_OK/prueba.xlsx
