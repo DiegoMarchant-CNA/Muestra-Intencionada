@@ -298,6 +298,12 @@ class FrameSeleccion(ctk.CTkFrame):
                                            command=self.limpiar)
         self.boton_limpiar.grid(row=5, column=0, pady=10)
 
+        self.boton_carpeta = ctk.CTkButton(master=self,
+                                           text='Ir a carpeta',
+                                           font=('D-DIN-PRO', 16),
+                                           command=self.ir_a_carpeta)
+        self.boton_carpeta.grid(row=6, column=0, pady=10)
+
     def funcion_boton(self):
         """Función para iniciar código de selección."""
         self.caja.configure(state='normal')
@@ -323,6 +329,11 @@ class FrameSeleccion(ctk.CTkFrame):
         CTkScrollableDropdown(self.combobox, values=self.lista_IES,
                               justify="left", button_color="transparent",
                               autocomplete=True)
+        
+    def ir_a_carpeta(self):
+        path = outputfolder + "/selección/"
+        path = os.path.realpath(path)
+        os.startfile(path)
 
 
 app = App()
