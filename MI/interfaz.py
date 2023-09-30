@@ -128,45 +128,36 @@ class FrameElegibles(ctk.CTkFrame):
                 self,
                 text='Seleccione el archivo de Oferta SIES',
                 font=('D-DIN-PRO', 16))
-        # self.OfertaLabel.pack(pady=10)
         self.OfertaLabel.grid(row=0, column=0, pady=10, sticky='NS')
 
         self.Oferta_boton = ctk.CTkButton(
                 self,
                 text='Oferta SIES',
                 command=self.select_file_oferta)
-
-        # self.Oferta_boton.pack(pady=10)
         self.Oferta_boton.grid(row=1, column=0, pady=10, sticky='NS')
 
         self.MatriculaLabel = ctk.CTkLabel(
                 self,
                 text='Seleccione el archivo de Matrícula SIES',
                 font=('D-DIN-PRO', 16))
-        # self.MatriculaLabel.pack(pady=10)
         self.MatriculaLabel.grid(row=2, column=0, pady=10, sticky='NS')
 
         self.Matricula_boton = ctk.CTkButton(
                 self,
                 text='Matrícula SIES',
                 command=self.select_file_matricula)
-
-        # self.Matricula_boton.pack(pady=10)
         self.Matricula_boton.grid(row=3, column=0, pady=10, sticky='NS')
 
         self.TituladosLabel = ctk.CTkLabel(
                 self,
                 text='Seleccione el archivo de Titulados SIES',
                 font=('D-DIN-PRO', 16))
-        # self.TituladosLabel.pack(pady=10)
         self.TituladosLabel.grid(row=4, column=0, pady=10, sticky='NS')
 
         self.Titulados_boton = ctk.CTkButton(
                 self,
                 text='Titulados SIES',
                 command=self.select_file_titulados)
-
-        # self.Titulados_boton.pack(pady=10)
         self.Titulados_boton.grid(row=5, column=0, pady=10, sticky='NS')
 
         self.Run_Main_boton = ctk.CTkButton(
@@ -175,9 +166,13 @@ class FrameElegibles(ctk.CTkFrame):
                 fg_color='#009a44',
                 hover_color='#005224',
                 command=self.Run_Main)
-
-        # self.Run_Main_boton.pack(pady=10)
         self.Run_Main_boton.grid(row=6, column=0, pady=10, sticky='NS')
+
+        self.progressbar = ctk.CTkProgressBar(self,
+                                              orientation="horizontal",
+                                              mode="determinate")
+        self.progressbar.grid(row=7, column=0, pady=10, sticky='NS')
+        self.progressbar.set(0)
 
     def select_file_oferta(self):
         """Función para botón de selección archivo Oferta."""
@@ -226,11 +221,18 @@ class FrameElegibles(ctk.CTkFrame):
 
     def Run_Main(self):
         """Ejecuta código de elegibilidad."""
+        self.progressbar.set(0)
         Main(outputfolder,
              self.Oferta_path,
              self.Matricula_path,
-             self.Titulados_path)
+             self.Titulados_path,
+             self)
         self.Run_Main_boton.configure(text='Elegibles listos!')
+        self.progressbar.set(1)
+
+    def update_bar(self, progreso):
+        self.progressbar.set(progreso)
+        self.update()
 
 
 # ---------------------------------------------------------------------
