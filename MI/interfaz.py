@@ -62,7 +62,7 @@ class App(ctk.CTk):
         self.after(201, lambda: self.iconbitmap('icon.ico'))
         interfaz_log.info('Inicializar interfaz grafica')
 
-        self.tabview = MyTabView(master=self)
+        self.tabview = MyTabView(master=self, command=self.refresh)
         self.tabview.pack(anchor=ctk.NW,
                           fill='both',
                           expand=True)
@@ -88,6 +88,12 @@ class App(ctk.CTk):
         self.frame_seleccion.pack(expand=True,
                                   fill='both')
 
+    def refresh(self):
+        tab_name = self.tabview.get()
+        if tab_name == "Selección":
+            self.frame_seleccion.refrescar_lista()
+        print("lel")
+
 
 class MyTabView(ctk.CTkTabview):
     """Pestañas disponibles."""
@@ -112,6 +118,8 @@ class FrameElegibles(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
 
+        self.grid_columnconfigure(0, weight=1)
+
         self.Oferta_path = ''
         self.Matricula_path = ''
         self.Titulados_path = ''
@@ -120,40 +128,37 @@ class FrameElegibles(ctk.CTkFrame):
                 self,
                 text='Seleccione el archivo de Oferta SIES',
                 font=('D-DIN-PRO', 16))
-        self.OfertaLabel.pack(pady=10)
+        self.OfertaLabel.grid(row=0, column=0, pady=10, sticky='NS')
 
         self.Oferta_boton = ctk.CTkButton(
                 self,
                 text='Oferta SIES',
                 command=self.select_file_oferta)
-
-        self.Oferta_boton.pack(pady=10)
+        self.Oferta_boton.grid(row=1, column=0, pady=10, sticky='NS')
 
         self.MatriculaLabel = ctk.CTkLabel(
                 self,
                 text='Seleccione el archivo de Matrícula SIES',
                 font=('D-DIN-PRO', 16))
-        self.MatriculaLabel.pack(pady=10)
+        self.MatriculaLabel.grid(row=2, column=0, pady=10, sticky='NS')
 
         self.Matricula_boton = ctk.CTkButton(
                 self,
                 text='Matrícula SIES',
                 command=self.select_file_matricula)
-
-        self.Matricula_boton.pack(pady=10)
+        self.Matricula_boton.grid(row=3, column=0, pady=10, sticky='NS')
 
         self.TituladosLabel = ctk.CTkLabel(
                 self,
                 text='Seleccione el archivo de Titulados SIES',
                 font=('D-DIN-PRO', 16))
-        self.TituladosLabel.pack(pady=10)
+        self.TituladosLabel.grid(row=4, column=0, pady=10, sticky='NS')
 
         self.Titulados_boton = ctk.CTkButton(
                 self,
                 text='Titulados SIES',
                 command=self.select_file_titulados)
-
-        self.Titulados_boton.pack(pady=10)
+        self.Titulados_boton.grid(row=5, column=0, pady=10, sticky='NS')
 
         self.Run_Main_boton = ctk.CTkButton(
                 self,
@@ -161,8 +166,13 @@ class FrameElegibles(ctk.CTkFrame):
                 fg_color='#009a44',
                 hover_color='#005224',
                 command=self.Run_Main)
+        self.Run_Main_boton.grid(row=6, column=0, pady=10, sticky='NS')
 
-        self.Run_Main_boton.pack(pady=10)
+        self.progressbar = ctk.CTkProgressBar(self,
+                                              orientation="horizontal",
+                                              mode="determinate")
+        self.progressbar.grid(row=7, column=0, pady=10, sticky='NS')
+        self.progressbar.set(0)
 
     def select_file_oferta(self):
         """Función para botón de selección archivo Oferta."""
@@ -171,14 +181,13 @@ class FrameElegibles(ctk.CTkFrame):
                 ('Todos los archivos', '*.*')
         )
 
-        global Oferta_path
         file = fd.askopenfilename(
                 title='Abrir archivo',
                 initialdir='/',
                 filetypes=filetypes)
         if file != '':
             self.Oferta_boton.configure(text=file)
-        Oferta_path = file
+        self.Oferta_path = file
 
     def select_file_matricula(self):
         """Función para botón de selección archivo Matrícula."""
@@ -187,14 +196,13 @@ class FrameElegibles(ctk.CTkFrame):
                 ('Todos los archivos', '*.*')
         )
 
-        global Matricula_path
         file = fd.askopenfilename(
                 title='Abrir archivo',
                 initialdir='/',
                 filetypes=filetypes)
         if file != '':
             self.Matricula_boton.configure(text=file)
-        Matricula_path = file
+        self.Matricula_path = file
 
     def select_file_titulados(self):
         """Función para botón de selección archivo Titulados."""
@@ -203,22 +211,28 @@ class FrameElegibles(ctk.CTkFrame):
                 ('Todos los archivos', '*.*')
         )
 
-        global Titulados_path
         file = fd.askopenfilename(
                 title='Abrir archivo',
                 initialdir='/',
                 filetypes=filetypes)
         if file != '':
             self.Titulados_boton.configure(text=file)
-        Titulados_path = file
+        self.Titulados_path = file
 
     def Run_Main(self):
         """Ejecuta código de elegibilidad."""
+        self.progressbar.set(0)
         Main(outputfolder,
              self.Oferta_path,
              self.Matricula_path,
-             self.Titulados_path)
+             self.Titulados_path,
+             self)
         self.Run_Main_boton.configure(text='Elegibles listos!')
+        self.progressbar.set(1)
+
+    def update_bar(self, progreso):
+        self.progressbar.set(progreso)
+        self.update()
 
 
 # ---------------------------------------------------------------------
@@ -226,6 +240,8 @@ class FrameSeleccion(ctk.CTkFrame):
     """Pestaña para ejecutar programa de selección."""
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
+
+        self.grid_columnconfigure(0, weight=1)
 
         self.fondo = ctk.CTkImage(light_image=Image.open("fondo2.png"),
                                   dark_image=Image.open("fondo2.png"),
@@ -242,20 +258,20 @@ class FrameSeleccion(ctk.CTkFrame):
                 text='Le damos la bienvenida al Programa' +
                 ' para Selección de Muestra Intencionada',
                 font=('D-DIN-PRO', 24))
-        self.tituloLabel.pack(pady=10)
+        self.tituloLabel.grid(row=0, column=0, pady=10)
 
         self.subtituloLabel = ctk.CTkLabel(
                 self,
                 text='Elija la institución para hacer la MI',
                 font=('D-DIN-PRO', 16))
-        self.subtituloLabel.pack(pady=10)
+        self.subtituloLabel.grid(row=1, column=0, pady=10)
 
         self.lista_IES = os.listdir(outputfolder)
 
         self.lista_IES = [inst.replace('.xlsx', "") for inst in self.lista_IES]
 
         self.combobox = ctk.CTkComboBox(self, width=500)
-        self.combobox.pack(pady=10)
+        self.combobox.grid(row=2, column=0, pady=10)
 
         CTkScrollableDropdown(self.combobox, values=self.lista_IES,
                               justify="left", button_color="transparent",
@@ -265,7 +281,7 @@ class FrameSeleccion(ctk.CTkFrame):
                                    text='Generar selección',
                                    font=('D-DIN-PRO', 16),
                                    command=self.funcion_boton)
-        self.boton.pack(pady=10)
+        self.boton.grid(row=3, column=0, pady=10)
 
         self.caja = ctk.CTkTextbox(master=self, width=800,
                                    height=250,
@@ -274,13 +290,19 @@ class FrameSeleccion(ctk.CTkFrame):
                                    font=('D-DIN-PRO', 14),
                                    corner_radius=5,
                                    state='disabled')
-        self.caja.pack(pady=10)
+        self.caja.grid(row=4, column=0, pady=10)
 
         self.boton_limpiar = ctk.CTkButton(master=self,
                                            text='Limpiar cuadro de texto',
                                            font=('D-DIN-PRO', 16),
                                            command=self.limpiar)
-        self.boton_limpiar.pack(pady=10)
+        self.boton_limpiar.grid(row=5, column=0, pady=10)
+
+        self.boton_carpeta = ctk.CTkButton(master=self,
+                                           text='Ir a carpeta',
+                                           font=('D-DIN-PRO', 16),
+                                           command=self.ir_a_carpeta)
+        self.boton_carpeta.grid(row=6, column=0, pady=10)
 
     def funcion_boton(self):
         """Función para iniciar código de selección."""
@@ -300,6 +322,18 @@ class FrameSeleccion(ctk.CTkFrame):
         self.caja.configure(state='normal')
         self.caja.delete('0.0', 'end')
         self.caja.configure(state='disabled')
+
+    def refrescar_lista(self):
+        self.lista_IES = os.listdir(outputfolder)
+        self.lista_IES = [inst.replace('.xlsx', "") for inst in self.lista_IES]
+        CTkScrollableDropdown(self.combobox, values=self.lista_IES,
+                              justify="left", button_color="transparent",
+                              autocomplete=True)
+        
+    def ir_a_carpeta(self):
+        path = outputfolder + "/selección/"
+        path = os.path.realpath(path)
+        os.startfile(path)
 
 
 app = App()
