@@ -8,7 +8,7 @@ import logging
 # Set logger para selección
 
 seleccion_log = logging.getLogger('Seleccion')
-
+display_log = logging.getLogger('Display')
 
 # Función para seleccionar N programas
 
@@ -178,50 +178,72 @@ def funcion_seleccion(IES: str):
     seleccion_log.debug(f'Número AC pregrado = {N_AC_pre}')
     seleccion_log.debug(f'Número AC postgrado = {N_AC_post}')
 
+    display_log.debug(f'Número AC total = {N_AC}')
+    display_log.debug(f'Número AC pregrado = {N_AC_pre}')
+    display_log.debug(f'Número AC postgrado = {N_AC_post}')
+
     # Revisar número AC institución, si hay postgrado entonces
     # calculamos el índice de AC a escoger
 
     def formula_post(ac, ac_pre, ac_post):
         # Fórmula usada en el cálculo de índices
         frac = ac/(1 + ac_pre/ac_post)
-        if frac - np.floor(frac) <= 0.4:
-            valor = np.floor(frac)
-        elif frac - np.floor(frac) >= 0.5:
-            valor = np.floor(frac) + 1
+        # if frac - np.floor(frac) <= 0.4:
+        #     valor = np.floor(frac)
+        # elif frac - np.floor(frac) >= 0.5:
+        #     valor = np.floor(frac) + 1
+        valor = np.ceil(frac)  # Caso actual
         return int(valor)
 
     if N_AC_post > 0:
         indice_post = formula_post(N_AC, N_AC_pre, N_AC_post)
-        seleccion_log.info(f'Postgrados a escoger = {indice_post}')
         indice_pre = N_AC - indice_post
+
+        seleccion_log.info(f'Postgrados a escoger = {indice_post}')
         seleccion_log.info(f'Pregrados a escoger = {indice_pre}')
+
+        display_log.info(f'Postgrados a escoger = {indice_post}')
+        display_log.info(f'Pregrados a escoger = {indice_pre}')
+
     else:
         indice_pre = N_AC
-        seleccion_log.info(f'Pregrados a escoger = {indice_pre}')
         indice_post = 0
-        seleccion_log.info(f'Postgrados a escoger = {indice_post}')
+
+        display_log.info(f'Pregrados a escoger = {indice_pre}')
+        display_log.info(f'Postgrados a escoger = {indice_post}')
+
+
 
     # Revisar el caso N_AC = 1
 
     if N_AC == 1:
-        seleccion_final = caso_1_AC(base)
         seleccion_log.info('Se ejecuta Seleccion caso 1 AC')
+        display_log.info('Se ejecuta Seleccion caso 1 AC')      
+
+        seleccion_final = caso_1_AC(base)
+
     elif 'FFAA' in IES.split(' '):
+        seleccion_log.info('Se ejecuta Seleccion caso FFAA')        
+        display_log.info('Se ejecuta Seleccion caso FFAA')
+
         seleccion_final = caso_FFAA(base)
-        seleccion_log.info('Se ejecuta Seleccion caso FFAA')
     elif N_AC > 1:
         seleccion_log.info('Se ejecuta Seleccion caso General')
+        display_log.info('Se ejecuta Seleccion caso General')
+
         data_seleccion_0 = np.empty((N_AC, len(base.columns)), dtype=object)
 
         # Hacer excepción para el caso Universidad con TNS
         # (implementación alternativa 1)
 
         caso_universidad = 'UNIVERSIDAD' in IES.split(' ')
-        caso_TNS = 'Si' in base['TNS'].unique()
+        caso_TNS = 'Sí' in base['TNS'].unique()
 
         AC_bloqueada_TNS = np.array([])
         if caso_TNS and caso_universidad:
             seleccion_log.info('Caso Universidad con TNS')
+            display_log.info('Caso Universidad con TNS')
+
             base_TNS = base[base['TNS'] == 'Si']
             AC_TNS = base_TNS[AC].unique()
             AC_bloqueada_TNS = np.random.choice(AC_TNS, size=1)
