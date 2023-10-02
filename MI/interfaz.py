@@ -32,6 +32,22 @@ main_log.addHandler(handler)
 seleccion_log.addHandler(handler)
 interfaz_log.addHandler(handler)
 
+# Set logger para mostrar en pantalla
+
+display_log = logging.getLogger('Display')
+
+display_log.setLevel(logging.INFO)
+
+handler = logging.FileHandler('output.log')
+formatter = logging.Formatter(
+    '%(asctime)s - %(message)s',
+    datefmt='[ %d-%m-%Y %H:%M:%S ]')
+handler.setFormatter(formatter)
+handler.setLevel(logging.INFO)
+
+display_log.addHandler(handler)
+
+
 # Carpeta donde guardar todo lo nuevo
 
 outputfolder = "../DB_OK"
@@ -48,7 +64,7 @@ for nombre_directorio in ["", "selección/", "elegibles/"]:
                 raise
 
 # Configuración inicial de la app
-ctk.set_appearance_mode('dark')
+ctk.set_appearance_mode('system')
 ctk.set_default_color_theme('CNA_colors')
 
 
