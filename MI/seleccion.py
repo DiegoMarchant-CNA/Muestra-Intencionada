@@ -5,10 +5,15 @@ import logging
 # import sys
 # import os
 
+# Constantes globables
+AC = 'Área del conocimiento'
+NIVEL = 'Nivel CNA'
+
 # Set logger para selección
 
 seleccion_log = logging.getLogger('Seleccion')
 display_log = logging.getLogger('Display')
+
 
 # Función para seleccionar N programas
 
@@ -22,7 +27,7 @@ def seleccionar_N_programas(base: pd.DataFrame, N):
     base.insert(0, column='Índices', value=indices)
     indices_elegidos = np.random.choice(indices, size=N)
     seleccion_log.info('Se seleccionaron los programas: ' +
-                       f'{indices_elegidos.tostring()}')
+                       f'{np.array2string(indices_elegidos)}')
     programas_elegidos = np.isin(base['Índices'], indices_elegidos)
     eleccion = base.loc[programas_elegidos]
     eleccion = eleccion.drop(columns='Índices')
@@ -42,7 +47,8 @@ def Seleccionar_prog(base: pd.DataFrame):
     base.insert(0, column='Índices', value=indices)
     indice_elegido = int(np.random.choice(indices, size=1))
     seleccion_log.info('Se selecciona programa: ' +
-                       f'{indice_elegido}')
+                       f'{indice_elegido} en el área ' +
+                       f'{np.array2string(base[AC].unique())}')
     prog_elegido = base['Índices'] == indice_elegido
     eleccion = base.loc[prog_elegido]
     eleccion = eleccion.drop(columns='Índices')
@@ -58,6 +64,7 @@ def Seleccionar_sede(sedes_funcion: pd.DataFrame):
     número de sedes a agregar como las sedes escogidas
     El output siempre será un array de 3 elementos
     """
+    programa = sedes_funcion['Código Corto'].unique()
     sedes_funcion = sedes_funcion.sort_values(by='Matrícula Total',
                                               ascending=False)
     indices = np.arange(len(sedes_funcion))+1
@@ -68,14 +75,13 @@ def Seleccionar_sede(sedes_funcion: pd.DataFrame):
         indices_elegidos = np.random.choice(indices, size=2)
     elif len(indices) >= 10:
         indices_elegidos = np.random.choice(indices, size=3)
-    seleccion_log.info('Se seleccionaron las sedes: ' +
-                       f'{indices_elegidos.tostring()}')
     sedes_elegidas = np.isin(sedes_funcion['Índices'], indices_elegidos)
-    seleccion_log.info('Se seleccionaron las sedes: ' +
-                       f'{sedes_elegidas.tostring()}')
     eleccion = sedes_funcion.loc[sedes_elegidas]
     eleccion_sedes = eleccion['Nombre Sede']
     eleccion_np = eleccion_sedes.to_numpy(copy=True)
+    seleccion_log.info('Se seleccionaron las sedes: ' +
+                       f'{np.array2string(eleccion_np)} ' +
+                       f'para el programa {programa}')
     while len(eleccion_np) < 3:
         eleccion_np = np.append(eleccion_np, [''])
     return eleccion_np
@@ -160,9 +166,7 @@ def funcion_seleccion(IES: str):
     base = base.loc[bool_elegibles]
     seleccion_log.debug('Se filtra base para trabajar con elegibles')
 
-    # Constantes de columnas
-    AC = 'Área del conocimiento'
-    NIVEL = 'Nivel CNA'
+
 
     # Revisar número AC institución
     AREAS = base[AC].unique()
@@ -212,18 +216,16 @@ def funcion_seleccion(IES: str):
         display_log.info(f'Pregrados a escoger = {indice_pre}')
         display_log.info(f'Postgrados a escoger = {indice_post}')
 
-
-
     # Revisar el caso N_AC = 1
 
     if N_AC == 1:
         seleccion_log.info('Se ejecuta Seleccion caso 1 AC')
-        display_log.info('Se ejecuta Seleccion caso 1 AC')      
+        display_log.info('Se ejecuta Seleccion caso 1 AC')
 
         seleccion_final = caso_1_AC(base)
 
     elif 'FFAA' in IES.split(' '):
-        seleccion_log.info('Se ejecuta Seleccion caso FFAA')        
+        seleccion_log.info('Se ejecuta Seleccion caso FFAA')
         display_log.info('Se ejecuta Seleccion caso FFAA')
 
         seleccion_final = caso_FFAA(base)
@@ -244,16 +246,19 @@ def funcion_seleccion(IES: str):
             seleccion_log.info('Caso Universidad con TNS')
             display_log.info('Caso Universidad con TNS')
 
-            base_TNS = base[base['TNS'] == 'Si']
+            base_TNS = base[base['TNS'] == 'Sí']
             AC_TNS = base_TNS[AC].unique()
             AC_bloqueada_TNS = np.random.choice(AC_TNS, size=1)
+            print(f'AC_bloqueada_TNS es tipo {type(AC_bloqueada_TNS)}')
+            print(AC_bloqueada_TNS)
+            print(str(AC_bloqueada_TNS))
             seleccion_log.debug('Se bloquea AC:' +
-                                f'{AC_bloqueada_TNS.tostring()}')
+                                f'{str(AC_bloqueada_TNS)}')
 
         for n, area in enumerate(AREAS):
             base_AC = base[base[AC] == area]
             if len(AC_bloqueada_TNS) > 0 and area == AC_bloqueada_TNS:
-                base_AC = base_AC[base_AC['TNS'] == 'Si']
+                base_AC = base_AC[base_AC['TNS'] == 'Sí']
             data_seleccion_0[n] = Seleccionar_prog(base_AC)
 
         seleccion_0 = pd.DataFrame(data=data_seleccion_0, columns=base.columns)
@@ -322,7 +327,7 @@ def funcion_seleccion(IES: str):
 
         conjunto_reemplazo = np.setdiff1d(conjunto_reemplazo, AC_bloqueada_TNS)
         seleccion_log.info('Conjunto disponible para reemplazo' +
-                           f'{conjunto_reemplazo.tostring()}')
+                           f'{np.array2string(conjunto_reemplazo)}')
 
         # Determinar las áreas a reemplazar
 
