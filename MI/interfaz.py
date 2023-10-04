@@ -32,21 +32,42 @@ main_log.addHandler(handler)
 seleccion_log.addHandler(handler)
 interfaz_log.addHandler(handler)
 
+
 # Set logger para mostrar en pantalla
 
-display_log = logging.getLogger('Display')
+class TextHandler(logging.Handler):
+    """This class allows you to log to a Tkinter Text or ScrolledText widget"""
+    def __init__(self, text):
+        # run the regular Handler __init__
+        logging.Handler.__init__(self)
+        # Store a reference to the Text it will log to
+        self.text = text
 
-display_log.setLevel(logging.INFO)
+    def emit(self, record):
+        msg = self.format(record)
 
-handler = logging.FileHandler('output.log')
-formatter = logging.Formatter(
-    '%(asctime)s - %(message)s',
-    datefmt='[ %d-%m-%Y %H:%M:%S ]')
-handler.setFormatter(formatter)
-handler.setLevel(logging.INFO)
+        def append():
+            self.text.configure(state='normal')
+            self.text.insert(tk.END, msg + '\n')
+            self.text.configure(state='disabled')
+            # Autoscroll to the bottom
+            self.text.yview(tk.END)
+        # This is necessary because we can't modify the Text from other threads
+        self.text.after(0, append)
 
-display_log.addHandler(handler)
 
+# display_log = logging.getLogger('Display')
+
+# display_log.setLevel(logging.INFO)
+
+# handler = logging.FileHandler('output.log')
+# formatter = logging.Formatter(
+#     '%(asctime)s - %(message)s',
+#     datefmt='[ %d-%m-%Y %H:%M:%S ]')
+# handler.setFormatter(formatter)
+# handler.setLevel(logging.INFO)
+
+# display_log.addHandler(handler)
 
 # Carpeta donde guardar todo lo nuevo
 
@@ -64,7 +85,7 @@ for nombre_directorio in ["", "selección/", "elegibles/"]:
                 raise
 
 # Configuración inicial de la app
-ctk.set_appearance_mode('system')
+ctk.set_appearance_mode('light')
 ctk.set_default_color_theme('CNA_colors')
 
 
@@ -126,6 +147,42 @@ class FrameInicio(ctk.CTkFrame):
     """Pestaña con descripción inicial."""
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
+
+        self.tituloLabel = ctk.CTkLabel(
+                self,
+                text='Le damos la bienvenida al Programa' +
+                ' para Selección de Muestra Intencionada',
+                font=('D-DIN-PRO', 24))
+        self.tituloLabel.grid(row=0, column=0, pady=10)
+
+        TextoInicio = (
+            'En el contexto de la acreditación institucional obligatoria, ' +
+            'dispuesto por la Ley 20.129, se debe asegurar la evaluación ' +
+            'de una muestra intencionada de las carreras y programas ' +
+            'de estudios impartidos por la institución en la totalidad ' +
+            'de sus sedes, la que deberá considerar carreras y programas ' +
+            'de estudio de las distintas áreas del conocimiento en las ' +
+            'que la institución desarrolla sus funciones, y en sus ' +
+            'diversas modalidades, evaluando integralmente la diversidad ' +
+            'de la institución.' +
+            'De acuerdo con el reglamento que aprueba el procedimiento ' +
+            'de selección de la muestra intencionada (Resolución ' +
+            'Exenta DJ N°346-45 de 2023), existen ciertos requisitos ' +
+            'de elegibilidad para ser parte del conjunto de carreras ' +
+            'y programas que podrían ser seleccionadas en la ' +
+            'muestra intencionada. ')
+
+        self.InicioText = ctk.CTkTextbox(
+            self,
+            height=280,
+            width=400,
+            fg_color='transparent',
+            font=('D-DIN-PRO', 16),
+            wrap='word',
+            )
+        self.InicioText.tag_config("center", justify="center")
+        self.InicioText.insert('0.0', TextoInicio)
+        self.InicioText.grid(row=1, column=0, pady=10, sticky='NS')
 
 
 # ---------------------------------------------------------------------
@@ -235,16 +292,33 @@ class FrameElegibles(ctk.CTkFrame):
             self.Titulados_boton.configure(text=file)
         self.Titulados_path = file
 
+    def mal_cargados(self):
+        tk.messagebox.showerror(
+            'Error en pestaña Elegibles',
+            'Archivos mal cargados'
+            )
+
     def Run_Main(self):
         """Ejecuta código de elegibilidad."""
         self.progressbar.set(0)
-        Main(outputfolder,
-             self.Oferta_path,
-             self.Matricula_path,
-             self.Titulados_path,
-             self)
-        self.Run_Main_boton.configure(text='Elegibles listos!')
-        self.progressbar.set(1)
+        try:
+            Main(
+                outputfolder,
+                self.Oferta_path,
+                self.Matricula_path,
+                self.Titulados_path
+                )
+            self.Run_Main_boton.configure(text='Elegibles listos!')
+            self.Oferta_boton.configure(text='Oferta SIES')
+            self.Matricula_boton.configure(text='Matrícula SIES')
+            self.Titulados_boton.configure(text='Titulados SIES')
+            self.progressbar.set(1)
+        except:
+            self.mal_cargados()
+            print('Archivos mal ingresados')
+            self.Oferta_boton.configure(text='Oferta SIES')
+            self.Matricula_boton.configure(text='Matrícula SIES')
+            self.Titulados_boton.configure(text='Titulados SIES')
 
     def update_bar(self, progreso):
         self.progressbar.set(progreso)
@@ -278,7 +352,7 @@ class FrameSeleccion(ctk.CTkFrame):
 
         self.subtituloLabel = ctk.CTkLabel(
                 self,
-                text='Elija la institución para hacer la MI',
+                text='Elija la institución para hacer la Muestra Intencionada',
                 font=('D-DIN-PRO', 16))
         self.subtituloLabel.grid(row=1, column=0, pady=10)
 
@@ -320,16 +394,21 @@ class FrameSeleccion(ctk.CTkFrame):
                                            command=self.ir_a_carpeta)
         self.boton_carpeta.grid(row=6, column=0, pady=10)
 
+        text_handler = TextHandler(self.caja)
+
+        display_log = logging.getLogger()
+        display_log.addHandler(text_handler)
+
     def funcion_boton(self):
         """Función para iniciar código de selección."""
+        # Borrar caja de texto antes de mostrar nuevo caso
+        self.caja.configure(state='normal')
+        self.caja.delete('0.0', 'end')
+        self.caja.configure(state='disabled')
+
         self.caja.configure(state='normal')
         eleccion = self.combobox.get()
         seleccion.funcion_seleccion(eleccion)
-        var = 'Generando selección...'
-        self.caja.insert('0.0', var+'\n')
-        self.caja.insert('0.0',
-                         'Se ha completado la selección de la institución:\n'
-                         + eleccion + '\n')
 
         self.caja.configure(state='disabled')
 
