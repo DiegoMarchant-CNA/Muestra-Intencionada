@@ -7,6 +7,8 @@ from tkinter import filedialog as fd
 from PIL import Image
 import logging
 
+from fpdf import FPDF
+
 import seleccion
 from CTkScrollableDropdown import CTkScrollableDropdown
 from main import Main
@@ -32,6 +34,14 @@ main_log.addHandler(handler)
 seleccion_log.addHandler(handler)
 interfaz_log.addHandler(handler)
 
+# Crear canvas para pdf del log
+
+pdf = FPDF()
+
+pdf.add_page()
+
+pdf.set_font("arial", size=10) 
+
 
 # Set logger para mostrar en pantalla
 
@@ -48,7 +58,7 @@ class TextHandler(logging.Handler):
 
         def append():
             self.text.configure(state='normal')
-            self.text.insert(tk.END, msg + '\n')
+            self.text.insert(tk.END, '-' + msg + '\n')
             self.text.configure(state='disabled')
             # Autoscroll to the bottom
             self.text.yview(tk.END)
@@ -56,26 +66,13 @@ class TextHandler(logging.Handler):
         self.text.after(0, append)
 
 
-# display_log = logging.getLogger('Display')
-
-# display_log.setLevel(logging.INFO)
-
-# handler = logging.FileHandler('output.log')
-# formatter = logging.Formatter(
-#     '%(asctime)s - %(message)s',
-#     datefmt='[ %d-%m-%Y %H:%M:%S ]')
-# handler.setFormatter(formatter)
-# handler.setLevel(logging.INFO)
-
-# display_log.addHandler(handler)
-
 # Carpeta donde guardar todo lo nuevo
 
-outputfolder = "../DB_OK"
+outputfolder = "../Bases Depuradas"
 
 # Verificar existencia de directorio.
 # Crear directorio en caso de no existir.
-for nombre_directorio in ["", "selección/", "elegibles/"]:
+for nombre_directorio in ["", "Selección/", "Elegibles/"]:
     directorio = outputfolder + "/" + nombre_directorio
     if not os.path.exists(os.path.dirname(directorio)):
         try:
@@ -109,7 +106,8 @@ class App(ctk.CTk):
                 master=self.tabview.tab('Inicio'),
                 width=1366,
                 height=718)
-        self.frame_inicio.pack()
+        self.frame_inicio.pack(fill='both',
+                               expand=True)
 
         self.frame_elegibles = FrameElegibles(
                 master=self.tabview.tab('Elegibles'),
@@ -148,12 +146,34 @@ class FrameInicio(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
 
+        # Grilla para colocar widgets
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure(2, weight=1)
+
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(2, weight=1)
+
+        self.fondo = ctk.CTkImage(light_image=Image.open("fondo2.png"),
+                                  dark_image=Image.open("fondo2.png"),
+                                  size=(274, 208))
+        self.ImageLabel = ctk.CTkLabel(master=self,
+                                       text='',
+                                       image=self.fondo)
+        self.ImageLabel.place(anchor=ctk.SW,
+                              relx=0.0,
+                              rely=1.0)
+
         self.tituloLabel = ctk.CTkLabel(
                 self,
                 text='Le damos la bienvenida al Programa' +
                 ' para Selección de Muestra Intencionada',
                 font=('D-DIN-PRO', 24))
-        self.tituloLabel.grid(row=0, column=0, pady=10)
+        self.tituloLabel.grid(row=0,
+                              column=0,
+                              columnspan=3,
+                              pady=10)
 
         TextoInicio = (
             'En el contexto de la acreditación institucional obligatoria, ' +
@@ -174,15 +194,28 @@ class FrameInicio(ctk.CTkFrame):
 
         self.InicioText = ctk.CTkTextbox(
             self,
-            height=280,
+            height=400,
+            corner_radius=20,
             width=400,
             fg_color='transparent',
+            border_width=2,
+            border_color='#808080',
             font=('D-DIN-PRO', 16),
             wrap='word',
             )
         self.InicioText.tag_config("center", justify="center")
         self.InicioText.insert('0.0', TextoInicio)
-        self.InicioText.grid(row=1, column=0, pady=10, sticky='NS')
+        self.InicioText.grid(row=1, column=2, pady=10)
+
+        # Versión del software
+        self.versionLabel = ctk.CTkLabel(
+                                    master=self,
+                                    text='Build 1.1.0-rc.1'
+                                    )
+        self.versionLabel.place(
+                    anchor=ctk.SE,
+                    relx=1.0,
+                    rely=1.0)
 
 
 # ---------------------------------------------------------------------
@@ -192,6 +225,16 @@ class FrameElegibles(ctk.CTkFrame):
         super().__init__(master, **kwargs)
 
         self.grid_columnconfigure(0, weight=1)
+
+        self.fondo = ctk.CTkImage(light_image=Image.open("fondo2.png"),
+                                  dark_image=Image.open("fondo2.png"),
+                                  size=(274, 208))
+        self.ImageLabel = ctk.CTkLabel(master=self,
+                                       text='',
+                                       image=self.fondo)
+        self.ImageLabel.place(anchor=ctk.SW,
+                              relx=0.0,
+                              rely=1.0)
 
         self.Oferta_path = ''
         self.Matricula_path = ''
@@ -356,14 +399,14 @@ class FrameSeleccion(ctk.CTkFrame):
                 font=('D-DIN-PRO', 16))
         self.subtituloLabel.grid(row=1, column=0, pady=10)
 
-        self.lista_IES = os.listdir(outputfolder)
+        self.lista_IES = os.listdir(outputfolder + '/Elegibles')
 
         self.lista_IES = [inst.replace('.xlsx', "") for inst in self.lista_IES]
 
         self.combobox = ctk.CTkComboBox(self, width=500)
         self.combobox.grid(row=2, column=0, pady=10)
 
-        CTkScrollableDropdown(self.combobox, values=self.lista_IES,
+        CTkScrollableDropdown(self.combobox, values=['null'],
                               justify="left", button_color="transparent",
                               autocomplete=True)
 
@@ -374,7 +417,7 @@ class FrameSeleccion(ctk.CTkFrame):
         self.boton.grid(row=3, column=0, pady=10)
 
         self.caja = ctk.CTkTextbox(master=self, width=800,
-                                   height=250,
+                                   height=400,
                                    fg_color='light gray',
                                    text_color='black',
                                    font=('D-DIN-PRO', 14),
@@ -382,11 +425,11 @@ class FrameSeleccion(ctk.CTkFrame):
                                    state='disabled')
         self.caja.grid(row=4, column=0, pady=10)
 
-        self.boton_limpiar = ctk.CTkButton(master=self,
-                                           text='Limpiar cuadro de texto',
-                                           font=('D-DIN-PRO', 16),
-                                           command=self.limpiar)
-        self.boton_limpiar.grid(row=5, column=0, pady=10)
+        self.boton_pdf = ctk.CTkButton(master=self,
+                                       text='Exportar PDF',
+                                       font=('D-DIN-PRO', 16),
+                                       command=self.exp_pdf)
+        self.boton_pdf.grid(row=5, column=0, pady=10)
 
         self.boton_carpeta = ctk.CTkButton(master=self,
                                            text='Ir a carpeta',
@@ -398,6 +441,7 @@ class FrameSeleccion(ctk.CTkFrame):
 
         display_log = logging.getLogger()
         display_log.addHandler(text_handler)
+        text_handler.setLevel(logging.INFO)
 
     def funcion_boton(self):
         """Función para iniciar código de selección."""
@@ -412,19 +456,29 @@ class FrameSeleccion(ctk.CTkFrame):
 
         self.caja.configure(state='disabled')
 
-    def limpiar(self):
+    def exp_pdf(self):
         """Función para borrar el texto en la caja de output."""
         self.caja.configure(state='normal')
-        self.caja.delete('0.0', 'end')
+        para_pdf = self.caja.get('0.0', 'end')
+        with open("pdf_log.txt", "w") as f:
+            f.write(para_pdf)
+        with open("pdf_log.txt", "r") as f:
+            for x in f: 
+                pdf.multi_cell(200, 10, txt=x, align='L')
+        PATH_PDF = '../Bases Depuradas/Selección/pdf_log.pdf'
+        pdf.output(PATH_PDF)
+        os.remove('pdf_log.txt')
         self.caja.configure(state='disabled')
 
     def refrescar_lista(self):
-        self.lista_IES = os.listdir(outputfolder)
+        self.lista_IES = os.listdir(outputfolder + '/Elegibles')
         self.lista_IES = [inst.replace('.xlsx', "") for inst in self.lista_IES]
+        if self.lista_IES == []:
+            self.lista_IES = ['null']
         CTkScrollableDropdown(self.combobox, values=self.lista_IES,
                               justify="left", button_color="transparent",
                               autocomplete=True)
-        
+
     def ir_a_carpeta(self):
         path = outputfolder + "/selección/"
         path = os.path.realpath(path)
