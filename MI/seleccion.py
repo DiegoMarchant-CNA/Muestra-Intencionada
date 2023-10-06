@@ -173,6 +173,7 @@ def funcion_seleccion(IES: str):
     seleccion_log.debug('Se filtra base para trabajar con elegibles')
 
     # Revisar número AC institución
+    
     AREAS = base[AC].unique()
     N_AC = len(AREAS)
 
@@ -220,7 +221,17 @@ def funcion_seleccion(IES: str):
 
     # Revisar el caso N_AC = 1
 
-    if N_AC == 1:
+    if N_AC == 0:
+        msg_N_AC_0 = (
+            'La institución no tiene carreras o programas ' +
+            'elegibles, por lo tanto, no hay resultado en la ' +
+            'selección de muestra intencionada.')
+        seleccion_log.info(
+            'Terminado con excepción: ' + msg_N_AC_0)
+        raise Exception('Terminado con errores')
+        return False
+
+    elif N_AC == 1:
         seleccion_log.info('Se ejecuta Seleccion caso 1 AC')
 
         seleccion_final = caso_1_AC(base)
@@ -350,7 +361,7 @@ def funcion_seleccion(IES: str):
             seleccion_log.info(
                 'Terminado con excepción: ' +
                 'Sin áreas disponibles para reemplazo')
-            raise Exception 
+            raise Exception('Terminado con errores')
             return False
 
         # Hacer el reemplazo en esta área, sólo tomando programas
