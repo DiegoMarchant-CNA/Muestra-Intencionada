@@ -34,14 +34,6 @@ main_log.addHandler(handler)
 seleccion_log.addHandler(handler)
 interfaz_log.addHandler(handler)
 
-# Crear canvas para pdf del log
-
-pdf = FPDF()
-
-pdf.add_page()
-
-pdf.set_font("arial", size=10) 
-
 
 # Set logger para mostrar en pantalla
 
@@ -453,22 +445,43 @@ class FrameSeleccion(ctk.CTkFrame):
 
         self.caja.configure(state='normal')
         eleccion = self.combobox.get()
-        seleccion.funcion_seleccion(eleccion)
+        try:
+            seleccion.funcion_seleccion(eleccion)
+        except:
+            print('Error')
 
         self.caja.configure(state='disabled')
 
     def exp_pdf(self):
         """Función para borrar el texto en la caja de output."""
+
+        # Sacar info para exportar
+
         self.caja.configure(state='normal')
         para_pdf = self.caja.get('0.0', 'end')
+        IES_pdf = self.combobox.get()
+
+        # Crear canvas para pdf del log
+
+        pdf = FPDF()
+
+        pdf.add_page()
+
+        pdf.set_font("arial", size=10) 
+
+        # Crear pdf
+
         with open("pdf_log.txt", "w") as f:
             f.write(para_pdf)
         with open("pdf_log.txt", "r") as f:
-            for x in f: 
+            for x in f:
                 pdf.multi_cell(200, 10, txt=x, align='L')
-        PATH_PDF = '../Bases Depuradas/Selección/pdf_log.pdf'
+
+        # Guardar info
+
+        PATH_PDF = f'../Bases Depuradas/Selección/log {IES_pdf}.pdf'
         pdf.output(PATH_PDF)
-        os.remove('pdf_log.txt')
+        # os.remove('pdf_log.txt')
         self.caja.configure(state='disabled')
 
     def refrescar_lista(self):
