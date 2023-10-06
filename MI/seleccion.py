@@ -149,7 +149,7 @@ def caso_FFAA(df):
 
 def funcion_seleccion(IES: str):
 
-    seleccion_log.info(f'Se inicia seleccion para la Institución: {IES}')
+    seleccion_log.info(f'Se inicia selección para la Institución: {IES}')
 
     PATH_base = f'../Bases Depuradas/Elegibles/{IES}.xlsx'
     PATH_sedes = '../Bases Depuradas/Sedes.xlsx'
@@ -243,7 +243,7 @@ def funcion_seleccion(IES: str):
         AC_bloqueada_TNS = np.array([])
         if caso_TNS and caso_universidad:
             seleccion_log.info(
-                'Caso Universidad con TNS.' +
+                'Caso Universidad con TNS. ' +
                 'Se procede a realizar bloqueo de AC con TNS')
             display_log.info(
                 'Caso Universidad con TNS.' +
@@ -255,8 +255,8 @@ def funcion_seleccion(IES: str):
             print(f'AC_bloqueada_TNS es tipo {type(AC_bloqueada_TNS)}')
             print(AC_bloqueada_TNS)
             print(str(AC_bloqueada_TNS))
-            seleccion_log.info('Se bloquea AC:' +
-                                f'{str(AC_bloqueada_TNS)}')
+            seleccion_log.info('Se bloquea AC: ' +
+                               f'{str(AC_bloqueada_TNS)}')
 
         for n, area in enumerate(AREAS):
             base_AC = base[base[AC] == area]
@@ -274,7 +274,7 @@ def funcion_seleccion(IES: str):
 
         seleccion_0.to_excel(PATH_seleccion_inicial,
                              index=False)
-        seleccion_log.info('Se guarda seleccion en archivo' +
+        seleccion_log.info('Se guarda selección en archivo ' +
                            f'{PATH_seleccion_inicial}')
 
         # -------------------------------------------------------------
