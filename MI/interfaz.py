@@ -502,7 +502,7 @@ class FrameSeleccion(ctk.CTkFrame):
 
         pdf.add_page()
 
-        pdf.set_font("arial", size=10) 
+        pdf.set_font("arial", size=10)
 
         # Crear pdf
 

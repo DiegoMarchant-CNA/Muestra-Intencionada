@@ -173,7 +173,7 @@ def funcion_seleccion(IES: str):
     seleccion_log.debug('Se filtra base para trabajar con elegibles')
 
     # Revisar número AC institución
-    
+
     AREAS = base[AC].unique()
     N_AC = len(AREAS)
 
@@ -206,18 +206,26 @@ def funcion_seleccion(IES: str):
     if N_AC_post > 0:
         indice_post = formula_post(N_AC, N_AC_pre, N_AC_post)
         indice_pre = N_AC - indice_post
-    
+
         seleccion_log.info(f'{art_8}')
-        seleccion_log.info(f'N° de carreras de postgrado a seleccionar = {indice_post}')
-        seleccion_log.info(f'N° de carreras de pregrado a seleccionar = {indice_pre}')
+        seleccion_log.info(
+            'N° de carreras de postgrado a seleccionar ' +
+            f'= {indice_post}')
+        seleccion_log.info(
+            'N° de carreras de pregrado a seleccionar ' +
+            f'= {indice_pre}')
 
     else:
         indice_pre = N_AC
         indice_post = 0
 
         seleccion_log.info(f'{art_8}')
-        seleccion_log.info(f'N° de carreras de postgrado a seleccionar = {indice_post}')
-        seleccion_log.info(f'N° de carreras de pregrado a seleccionar = {indice_pre}')
+        seleccion_log.info(
+            'N° de carreras de postgrado a seleccionar ' +
+            f'= {indice_post}')
+        seleccion_log.info(
+            'N° de carreras de pregrado a seleccionar ' +
+            f'= {indice_pre}')
 
     # Revisar el caso N_AC = 1
 
@@ -308,7 +316,8 @@ def funcion_seleccion(IES: str):
             agregar_sedes(seleccion_final, Sedes)
 
             # Guardar en excel
-            PATH_seleccion_final = f'../Bases Depuradas/selección/{IES}_selección.xlsx'
+            PATH_seleccion_final = (
+                f'../Bases Depuradas/selección/{IES}_selección.xlsx')
             seleccion_final.to_excel(PATH_seleccion_final,
                                      index=False)
             seleccion_log.info('Se guarda seleccion en archivo' +
