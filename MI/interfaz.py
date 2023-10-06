@@ -74,7 +74,7 @@ for nombre_directorio in ["", "Selección/", "Elegibles/"]:
                 raise
 
 # Configuración inicial de la app
-ctk.set_appearance_mode('light')
+ctk.set_appearance_mode('system')
 ctk.set_default_color_theme('CNA_colors')
 
 
@@ -83,7 +83,7 @@ class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        self.geometry('1366x718')
+        self.geometry('1000x718')
         self.title('Muestra Intencionada - CNA Chile')
         self.after(201, lambda: self.iconbitmap('icon.ico'))
         interfaz_log.info('Inicializar interfaz grafica')
@@ -189,24 +189,24 @@ class FrameInicio(ctk.CTkFrame):
 
         self.InicioText = ctk.CTkTextbox(
             self,
-            height=400,
+            height=300,
             corner_radius=20,
             width=400,
             fg_color='transparent',
             border_width=2,
             border_color='#808080',
             font=('D-DIN-PRO', 16),
-            wrap='word',            
+            wrap='word',
             )
         self.InicioText.tag_config("center", justify="center")
         self.InicioText.insert('0.0', TextoInicio)
         self.InicioText.configure(state='disabled')
-        self.InicioText.grid(row=1, column=2, pady=10)
+        self.InicioText.grid(row=0, column=2, pady=10)
 
         # Versión del software
         self.versionLabel = ctk.CTkLabel(
                                     master=self,
-                                    text='Build 1.1.0-rc.1'
+                                    text='Build 1.1.0-rc.1, coded by Madnstar'
                                     )
         self.versionLabel.place(
                     anchor=ctk.SE,
@@ -221,6 +221,8 @@ class FrameElegibles(ctk.CTkFrame):
         super().__init__(master, **kwargs)
 
         self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=2)
+        self.grid_columnconfigure(2, weight=2)
 
         self.fondo = ctk.CTkImage(light_image=Image.open("fondo2.png"),
                                   dark_image=Image.open("fondo2.png"),
@@ -232,6 +234,39 @@ class FrameElegibles(ctk.CTkFrame):
                               relx=0.0,
                               rely=1.0)
 
+        TextoInicio = (
+                'De acuerdo con las áreas del conocimiento en las cuales ' +
+                'la institución de educación superior oferta carreras y ' +
+                'programas de pregrado y posgrado, según lo declarado por ' +
+                'la misma institución en sus documentos de autoevaluación,' +
+                ' se deberá: Acceder, depurar y combinar las bases de datos ' +
+                'SIES de oferta, matrícula y titulados del SIES según ' +
+                'corresponda, por parte de la Comisión, para proceder a ' +
+                'identificar las carreras o programas elegibles de la ' +
+                'institución de educación superior. (RE DJ N°346-45 de 202' +
+                '3, artículo 7)')
+
+        self.ElegiblesText = ctk.CTkTextbox(
+            self,
+            height=220,
+            corner_radius=20,
+            width=400,
+            fg_color='transparent',
+            border_width=2,
+            border_color='#808080',
+            font=('D-DIN-PRO', 16),
+            wrap='word',
+            )
+        self.ElegiblesText.tag_config("center", justify="center")
+        self.ElegiblesText.insert('0.0', TextoInicio)
+        self.ElegiblesText.configure(state='disabled')
+        self.ElegiblesText.grid(
+                        row=0,
+                        rowspan=7,
+                        columnspan=2,
+                        column=0,
+                        pady=10)
+
         self.Oferta_path = ''
         self.Matricula_path = ''
         self.Titulados_path = ''
@@ -240,37 +275,37 @@ class FrameElegibles(ctk.CTkFrame):
                 self,
                 text='Seleccione el archivo de Oferta SIES',
                 font=('D-DIN-PRO', 16))
-        self.OfertaLabel.grid(row=0, column=0, pady=10, sticky='NS')
+        self.OfertaLabel.grid(row=0, column=2, pady=10, sticky='NS')
 
         self.Oferta_boton = ctk.CTkButton(
                 self,
                 text='Oferta SIES',
                 command=self.select_file_oferta)
-        self.Oferta_boton.grid(row=1, column=0, pady=10, sticky='NS')
+        self.Oferta_boton.grid(row=1, column=2, pady=10, sticky='NS')
 
         self.MatriculaLabel = ctk.CTkLabel(
                 self,
                 text='Seleccione el archivo de Matrícula SIES',
                 font=('D-DIN-PRO', 16))
-        self.MatriculaLabel.grid(row=2, column=0, pady=10, sticky='NS')
+        self.MatriculaLabel.grid(row=2, column=2, pady=10, sticky='NS')
 
         self.Matricula_boton = ctk.CTkButton(
                 self,
                 text='Matrícula SIES',
                 command=self.select_file_matricula)
-        self.Matricula_boton.grid(row=3, column=0, pady=10, sticky='NS')
+        self.Matricula_boton.grid(row=3, column=2, pady=10, sticky='NS')
 
         self.TituladosLabel = ctk.CTkLabel(
                 self,
                 text='Seleccione el archivo de Titulados SIES',
                 font=('D-DIN-PRO', 16))
-        self.TituladosLabel.grid(row=4, column=0, pady=10, sticky='NS')
+        self.TituladosLabel.grid(row=4, column=2, pady=10, sticky='NS')
 
         self.Titulados_boton = ctk.CTkButton(
                 self,
                 text='Titulados SIES',
                 command=self.select_file_titulados)
-        self.Titulados_boton.grid(row=5, column=0, pady=10, sticky='NS')
+        self.Titulados_boton.grid(row=5, column=2, pady=10, sticky='NS')
 
         self.Run_Main_boton = ctk.CTkButton(
                 self,
@@ -278,12 +313,12 @@ class FrameElegibles(ctk.CTkFrame):
                 fg_color='#009a44',
                 hover_color='#005224',
                 command=self.Run_Main)
-        self.Run_Main_boton.grid(row=6, column=0, pady=10, sticky='NS')
+        self.Run_Main_boton.grid(row=6, column=2, pady=10, sticky='NS')
 
         self.progressbar = ctk.CTkProgressBar(self,
                                               orientation="horizontal",
                                               mode="determinate")
-        self.progressbar.grid(row=7, column=0, pady=10, sticky='NS')
+        self.progressbar.grid(row=7, column=2, pady=10, sticky='NS')
         self.progressbar.set(0)
 
     def select_file_oferta(self):
