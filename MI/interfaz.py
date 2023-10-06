@@ -58,7 +58,7 @@ class TextHandler(logging.Handler):
 
         def append():
             self.text.configure(state='normal')
-            self.text.insert(tk.END, '-' + msg + '\n')
+            self.text.insert(tk.END, '- ' + msg + '\n')
             self.text.configure(state='disabled')
             # Autoscroll to the bottom
             self.text.yview(tk.END)
@@ -96,7 +96,17 @@ class App(ctk.CTk):
         self.after(201, lambda: self.iconbitmap('icon.ico'))
         interfaz_log.info('Inicializar interfaz grafica')
 
-        self.tabview = MyTabView(master=self, command=self.refresh)
+        self.tituloLabel = ctk.CTkLabel(
+                self,
+                text='Le damos la bienvenida al Programa' +
+                ' para Selección de Muestra Intencionada',
+                font=('D-DIN-PRO', 24))
+        self.tituloLabel.pack(pady=10)
+
+        self.tabview = MyTabView(
+                master=self,
+                bg_color='transparent',
+                command=self.refresh)
         self.tabview.pack(anchor=ctk.NW,
                           fill='both',
                           expand=True)
@@ -105,21 +115,24 @@ class App(ctk.CTk):
         self.frame_inicio = FrameInicio(
                 master=self.tabview.tab('Inicio'),
                 width=1366,
-                height=718)
+                height=718,
+                fg_color='transparent')
         self.frame_inicio.pack(fill='both',
                                expand=True)
 
         self.frame_elegibles = FrameElegibles(
                 master=self.tabview.tab('Elegibles'),
                 width=1366,
-                height=718)
+                height=718,
+                fg_color='transparent')
         self.frame_elegibles.pack(fill='both',
                                   expand=True)
 
         self.frame_seleccion = FrameSeleccion(
                 master=self.tabview.tab('Selección'),
                 width=1366,
-                height=718)
+                height=718,
+                fg_color='transparent')
         self.frame_seleccion.pack(expand=True,
                                   fill='both')
 
@@ -165,16 +178,6 @@ class FrameInicio(ctk.CTkFrame):
                               relx=0.0,
                               rely=1.0)
 
-        self.tituloLabel = ctk.CTkLabel(
-                self,
-                text='Le damos la bienvenida al Programa' +
-                ' para Selección de Muestra Intencionada',
-                font=('D-DIN-PRO', 24))
-        self.tituloLabel.grid(row=0,
-                              column=0,
-                              columnspan=3,
-                              pady=10)
-
         TextoInicio = (
             'En el contexto de la acreditación institucional obligatoria, ' +
             'dispuesto por la Ley 20.129, se debe asegurar la evaluación ' +
@@ -201,10 +204,11 @@ class FrameInicio(ctk.CTkFrame):
             border_width=2,
             border_color='#808080',
             font=('D-DIN-PRO', 16),
-            wrap='word',
+            wrap='word',            
             )
         self.InicioText.tag_config("center", justify="center")
         self.InicioText.insert('0.0', TextoInicio)
+        self.InicioText.configure(state='disabled')
         self.InicioText.grid(row=1, column=2, pady=10)
 
         # Versión del software
@@ -386,13 +390,6 @@ class FrameSeleccion(ctk.CTkFrame):
                               relx=0.0,
                               rely=1.0)
 
-        self.tituloLabel = ctk.CTkLabel(
-                self,
-                text='Le damos la bienvenida al Programa' +
-                ' para Selección de Muestra Intencionada',
-                font=('D-DIN-PRO', 24))
-        self.tituloLabel.grid(row=0, column=0, pady=10)
-
         self.subtituloLabel = ctk.CTkLabel(
                 self,
                 text='Elija la institución para hacer la Muestra Intencionada',
@@ -417,7 +414,7 @@ class FrameSeleccion(ctk.CTkFrame):
         self.boton.grid(row=3, column=0, pady=10)
 
         self.caja = ctk.CTkTextbox(master=self, width=800,
-                                   height=400,
+                                   height=230,
                                    fg_color='light gray',
                                    text_color='black',
                                    font=('D-DIN-PRO', 14),
@@ -442,6 +439,10 @@ class FrameSeleccion(ctk.CTkFrame):
         display_log = logging.getLogger()
         display_log.addHandler(text_handler)
         text_handler.setLevel(logging.INFO)
+        textformatter = logging.Formatter(
+                '%(asctime)s - %(message)s',
+                datefmt='[ %d-%m-%Y %H:%M:%S ]')
+        text_handler.setFormatter(textformatter)
 
     def funcion_boton(self):
         """Función para iniciar código de selección."""
