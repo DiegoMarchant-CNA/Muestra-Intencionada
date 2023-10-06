@@ -5,9 +5,20 @@ import logging
 # import sys
 # import os
 
+# Constantes globables
+AC = 'Área del conocimiento'
+NIVEL = 'Nivel CNA'
+
+art_8 = 'Resultados de la fórmula (RE DJ N°346-45 de 2023, artículo 8)'
+art_10 = ('Reemplazo de carreras o programas ' +
+          '(RE DJ N°346-45 de 2023, artículo 10)')
+art_11 = ('Ordenación y selección de sedes' +
+          '(RE DJ N°346-45 de 2023, artículo 11)')
+
 # Set logger para selección
 
 seleccion_log = logging.getLogger('Seleccion')
+display_log = logging.getLogger()
 
 
 # Función para seleccionar N programas
@@ -22,7 +33,7 @@ def seleccionar_N_programas(base: pd.DataFrame, N):
     base.insert(0, column='Índices', value=indices)
     indices_elegidos = np.random.choice(indices, size=N)
     seleccion_log.info('Se seleccionaron los programas: ' +
-                       f'{indices_elegidos.tostring()}')
+                       f'{np.array2string(indices_elegidos)}')
     programas_elegidos = np.isin(base['Índices'], indices_elegidos)
     eleccion = base.loc[programas_elegidos]
     eleccion = eleccion.drop(columns='Índices')
@@ -42,7 +53,8 @@ def Seleccionar_prog(base: pd.DataFrame):
     base.insert(0, column='Índices', value=indices)
     indice_elegido = int(np.random.choice(indices, size=1))
     seleccion_log.info('Se selecciona programa: ' +
-                       f'{indice_elegido}')
+                       f'{indice_elegido} en el área ' +
+                       f'{np.array2string(base[AC].unique())}')
     prog_elegido = base['Índices'] == indice_elegido
     eleccion = base.loc[prog_elegido]
     eleccion = eleccion.drop(columns='Índices')
@@ -58,6 +70,7 @@ def Seleccionar_sede(sedes_funcion: pd.DataFrame):
     número de sedes a agregar como las sedes escogidas
     El output siempre será un array de 3 elementos
     """
+    programa = sedes_funcion['Código Corto'].unique()
     sedes_funcion = sedes_funcion.sort_values(by='Matrícula Total',
                                               ascending=False)
     indices = np.arange(len(sedes_funcion))+1
@@ -68,14 +81,13 @@ def Seleccionar_sede(sedes_funcion: pd.DataFrame):
         indices_elegidos = np.random.choice(indices, size=2)
     elif len(indices) >= 10:
         indices_elegidos = np.random.choice(indices, size=3)
-    seleccion_log.info('Se seleccionaron las sedes: ' +
-                       f'{indices_elegidos.tostring()}')
     sedes_elegidas = np.isin(sedes_funcion['Índices'], indices_elegidos)
-    seleccion_log.info('Se seleccionaron las sedes: ' +
-                       f'{sedes_elegidas.tostring()}')
     eleccion = sedes_funcion.loc[sedes_elegidas]
     eleccion_sedes = eleccion['Nombre Sede']
     eleccion_np = eleccion_sedes.to_numpy(copy=True)
+    seleccion_log.debug('Se seleccionaron las sedes: ' +
+                        f'{np.array2string(eleccion_np)} ' +
+                        f'para el programa {programa}')
     while len(eleccion_np) < 3:
         eleccion_np = np.append(eleccion_np, [''])
     return eleccion_np
@@ -137,10 +149,10 @@ def caso_FFAA(df):
 
 def funcion_seleccion(IES: str):
 
-    seleccion_log.info(f'Se inicia seleccion para la IES: {IES}')
+    seleccion_log.info(f'Se inicia selección para la Institución: {IES}')
 
-    PATH_base = f'../DB_OK/{IES}.xlsx'
-    PATH_sedes = '../DB_OK/Sedes.xlsx'
+    PATH_base = f'../Bases Depuradas/Elegibles/{IES}.xlsx'
+    PATH_sedes = '../Bases Depuradas/Sedes.xlsx'
 
     base = pd.read_excel(PATH_base)
     Sedes = pd.read_excel(PATH_sedes)
@@ -160,11 +172,8 @@ def funcion_seleccion(IES: str):
     base = base.loc[bool_elegibles]
     seleccion_log.debug('Se filtra base para trabajar con elegibles')
 
-    # Constantes de columnas
-    AC = 'Área del conocimiento'
-    NIVEL = 'Nivel CNA'
-
     # Revisar número AC institución
+    
     AREAS = base[AC].unique()
     N_AC = len(AREAS)
 
@@ -174,9 +183,12 @@ def funcion_seleccion(IES: str):
     AC_post = base[base[NIVEL] == 'Postgrado'][AC].unique()
     N_AC_post = len(AC_post)
 
-    seleccion_log.debug(f'Número AC total = {N_AC}')
-    seleccion_log.debug(f'Número AC pregrado = {N_AC_pre}')
-    seleccion_log.debug(f'Número AC postgrado = {N_AC_post}')
+    Resumen_AC = 'Resumen de Areas del Conocimiento (AC):'
+
+    seleccion_log.info(f'{Resumen_AC}')
+    seleccion_log.info(f'Número AC total = {N_AC}')
+    seleccion_log.info(f'Número AC pregrado = {N_AC_pre}')
+    seleccion_log.info(f'Número AC postgrado = {N_AC_post}')
 
     # Revisar número AC institución, si hay postgrado entonces
     # calculamos el índice de AC a escoger
@@ -184,73 +196,104 @@ def funcion_seleccion(IES: str):
     def formula_post(ac, ac_pre, ac_post):
         # Fórmula usada en el cálculo de índices
         frac = ac/(1 + ac_pre/ac_post)
-        if frac - np.floor(frac) <= 0.4:
-            valor = np.floor(frac)
-        elif frac - np.floor(frac) >= 0.5:
-            valor = np.floor(frac) + 1
+        # if frac - np.floor(frac) <= 0.4:
+        #     valor = np.floor(frac)
+        # elif frac - np.floor(frac) >= 0.5:
+        #     valor = np.floor(frac) + 1
+        valor = np.ceil(frac)  # Caso actual
         return int(valor)
 
     if N_AC_post > 0:
         indice_post = formula_post(N_AC, N_AC_pre, N_AC_post)
-        seleccion_log.info(f'Postgrados a escoger = {indice_post}')
         indice_pre = N_AC - indice_post
-        seleccion_log.info(f'Pregrados a escoger = {indice_pre}')
+    
+        seleccion_log.info(f'{art_8}')
+        seleccion_log.info(f'N° de carreras de postgrado a seleccionar = {indice_post}')
+        seleccion_log.info(f'N° de carreras de pregrado a seleccionar = {indice_pre}')
+
     else:
         indice_pre = N_AC
-        seleccion_log.info(f'Pregrados a escoger = {indice_pre}')
         indice_post = 0
-        seleccion_log.info(f'Postgrados a escoger = {indice_post}')
+
+        seleccion_log.info(f'{art_8}')
+        seleccion_log.info(f'N° de carreras de postgrado a seleccionar = {indice_post}')
+        seleccion_log.info(f'N° de carreras de pregrado a seleccionar = {indice_pre}')
 
     # Revisar el caso N_AC = 1
 
-    if N_AC == 1:
-        seleccion_final = caso_1_AC(base)
+    if N_AC == 0:
+        msg_N_AC_0 = (
+            'La institución no tiene carreras o programas ' +
+            'elegibles, por lo tanto, no hay resultado en la ' +
+            'selección de muestra intencionada.')
+        seleccion_log.info(
+            'Terminado con excepción: ' + msg_N_AC_0)
+        raise Exception('Terminado con errores')
+        return False
+
+    elif N_AC == 1:
         seleccion_log.info('Se ejecuta Seleccion caso 1 AC')
+
+        seleccion_final = caso_1_AC(base)
+
     elif 'FFAA' in IES.split(' '):
-        seleccion_final = caso_FFAA(base)
         seleccion_log.info('Se ejecuta Seleccion caso FFAA')
+
+        seleccion_final = caso_FFAA(base)
     elif N_AC > 1:
         seleccion_log.info('Se ejecuta Seleccion caso General')
+
         data_seleccion_0 = np.empty((N_AC, len(base.columns)), dtype=object)
 
         # Hacer excepción para el caso Universidad con TNS
         # (implementación alternativa 1)
 
         caso_universidad = 'UNIVERSIDAD' in IES.split(' ')
-        caso_TNS = 'Si' in base['TNS'].unique()
+        caso_TNS = 'Sí' in base['TNS'].unique()
 
         AC_bloqueada_TNS = np.array([])
         if caso_TNS and caso_universidad:
-            seleccion_log.info('Caso Universidad con TNS')
-            base_TNS = base[base['TNS'] == 'Si']
+            seleccion_log.info(
+                'Caso Universidad con TNS. ' +
+                'Se procede a realizar bloqueo de AC con TNS')
+            display_log.info(
+                'Caso Universidad con TNS.' +
+                'Se procede a realizar bloqueo de AC con TNS')
+
+            base_TNS = base[base['TNS'] == 'Sí']
             AC_TNS = base_TNS[AC].unique()
             AC_bloqueada_TNS = np.random.choice(AC_TNS, size=1)
-            seleccion_log.debug('Se bloquea AC:' +
-                                f'{AC_bloqueada_TNS.tostring()}')
+            print(f'AC_bloqueada_TNS es tipo {type(AC_bloqueada_TNS)}')
+            print(AC_bloqueada_TNS)
+            print(str(AC_bloqueada_TNS))
+            seleccion_log.info('Se bloquea AC: ' +
+                               f'{str(AC_bloqueada_TNS)}')
 
         for n, area in enumerate(AREAS):
             base_AC = base[base[AC] == area]
             if len(AC_bloqueada_TNS) > 0 and area == AC_bloqueada_TNS:
-                base_AC = base_AC[base_AC['TNS'] == 'Si']
+                base_AC = base_AC[base_AC['TNS'] == 'Sí']
             data_seleccion_0[n] = Seleccionar_prog(base_AC)
 
         seleccion_0 = pd.DataFrame(data=data_seleccion_0, columns=base.columns)
 
         # Exportar tabla de selección antes de reemplazo
 
-        PATH_seleccion_inicial = ('../DB_OK/'
+        PATH_seleccion_inicial = ('../Bases Depuradas/'
                                   + 'selección/'
                                   + f'{IES}_selección_inicial.xlsx')
 
         seleccion_0.to_excel(PATH_seleccion_inicial,
                              index=False)
-        seleccion_log.info('Se guarda seleccion en archivo' +
+        seleccion_log.info('Se guarda selección en archivo ' +
                            f'{PATH_seleccion_inicial}')
 
         # -------------------------------------------------------------
         # Algoritmo de reemplazo
 
         # Cantidad de postgrados de la MI
+
+        seleccion_log.info(f'{art_10}')
 
         hist_nivel_seleccion = seleccion_0[NIVEL].value_counts()
         if 'Postgrado' in hist_nivel_seleccion:
@@ -265,7 +308,7 @@ def funcion_seleccion(IES: str):
             agregar_sedes(seleccion_final, Sedes)
 
             # Guardar en excel
-            PATH_seleccion_final = f'../DB_OK/selección/{IES}_selección.xlsx'
+            PATH_seleccion_final = f'../Bases Depuradas/selección/{IES}_selección.xlsx'
             seleccion_final.to_excel(PATH_seleccion_final,
                                      index=False)
             seleccion_log.info('Se guarda seleccion en archivo' +
@@ -273,12 +316,12 @@ def funcion_seleccion(IES: str):
 
             return True
         elif post_en_MI > indice_post:
-            seleccion_log.info('Excedente en Postgrado')
+            seleccion_log.info('Nivel en exceso: Postgrado')
             N_reemplazo = post_en_MI - indice_post
             nivel_en_exceso = 'Postgrado'
             nivel_escasez = 'Pregrado'
         else:
-            seleccion_log.info('Excedente en Pregrado')
+            seleccion_log.info('Nivel de exceso: Pregrado')
             N_reemplazo = - (post_en_MI - indice_post)
             nivel_en_exceso = 'Pregrado'
             nivel_escasez = 'Postgrado'
@@ -299,8 +342,12 @@ def funcion_seleccion(IES: str):
         # Quitar la AC bloqueada, en caso que exista
 
         conjunto_reemplazo = np.setdiff1d(conjunto_reemplazo, AC_bloqueada_TNS)
-        seleccion_log.info('Conjunto disponible para reemplazo' +
-                           f'{conjunto_reemplazo.tostring()}')
+        conjunto_reemplazo_str = np.array2string(conjunto_reemplazo,
+                                                 separator=', ')
+        seleccion_log.info('Conjunto disponible para reemplazo ' +
+                           f'{conjunto_reemplazo_str}')
+        seleccion_log.info('Se procede a usar base sólo con programas' +
+                           ' o carreras en el nivel en escasez')
 
         # Determinar las áreas a reemplazar
 
@@ -311,7 +358,10 @@ def funcion_seleccion(IES: str):
                                             size=N_reemplazo,
                                             replace=False)
         else:
-            print('ERROR')
+            seleccion_log.info(
+                'Terminado con excepción: ' +
+                'Sin áreas disponibles para reemplazo')
+            raise Exception('Terminado con errores')
             return False
 
         # Hacer el reemplazo en esta área, sólo tomando programas
@@ -329,9 +379,10 @@ def funcion_seleccion(IES: str):
     # Agregar sedes en el caso con reemplazo
 
     agregar_sedes(seleccion_final, Sedes)
+    seleccion_log.info(f'{art_11}')
 
     # Guardar en excel
-    PATH_seleccion_final = f'../DB_OK/selección/{IES}_selección.xlsx'
+    PATH_seleccion_final = f'../Bases Depuradas/Selección/{IES}_selección.xlsx'
     seleccion_final.to_excel(PATH_seleccion_final,
                              index=False)
     seleccion_log.info('Se guarda seleccion en archivo' +
