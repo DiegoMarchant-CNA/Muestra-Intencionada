@@ -234,7 +234,7 @@ class FrameElegibles(ctk.CTkFrame):
                               relx=0.0,
                               rely=1.0)
 
-        TextoInicio = (
+        TextoElegibles = (
                 'De acuerdo con las áreas del conocimiento en las cuales ' +
                 'la institución de educación superior oferta carreras y ' +
                 'programas de pregrado y posgrado, según lo declarado por ' +
@@ -258,7 +258,7 @@ class FrameElegibles(ctk.CTkFrame):
             wrap='word',
             )
         self.ElegiblesText.tag_config("center", justify="center")
-        self.ElegiblesText.insert('0.0', TextoInicio)
+        self.ElegiblesText.insert('0.0', TextoElegibles)
         self.ElegiblesText.configure(state='disabled')
         self.ElegiblesText.grid(
                         row=0,

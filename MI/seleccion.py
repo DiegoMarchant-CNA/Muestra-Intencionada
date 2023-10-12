@@ -391,7 +391,7 @@ def funcion_seleccion(IES: str):
     seleccion_log.info(f'{art_11}')
 
     # Guardar en excel
-    PATH_seleccion_final = f'../Bases Depuradas/Selección/{IES}_selección.xlsx'
+    PATH_seleccion_final = f'../Bases Depuradas/Selección/{IES}_selección final y sedes.xlsx'
     seleccion_final.to_excel(PATH_seleccion_final,
                              index=False)
     seleccion_log.info('Se guarda seleccion en archivo' +
