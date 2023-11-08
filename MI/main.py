@@ -29,6 +29,7 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
         x = pd.read_csv(archivo,
                         encoding='Windows 1252',
                         sep=";",
+                        encoding_errors='ignore',
                         low_memory=False)
         x.columns = x.columns.str.strip()
         return x

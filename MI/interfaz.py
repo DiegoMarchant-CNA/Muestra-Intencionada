@@ -10,7 +10,6 @@ import logging
 from fpdf import FPDF
 
 import seleccion
-from CTkScrollableDropdown import CTkScrollableDropdown
 from main import Main
 
 # Set logger para cada módulo
@@ -427,12 +426,11 @@ class FrameSeleccion(ctk.CTkFrame):
 
         self.lista_IES = [inst.replace('.xlsx', "") for inst in self.lista_IES]
 
-        self.combobox = ctk.CTkComboBox(self, width=500)
-        self.combobox.grid(row=2, column=0, pady=10)
-
-        CTkScrollableDropdown(self.combobox, values=['null'],
-                              justify="left", button_color="transparent",
-                              autocomplete=True)
+        self.optionmenu = ctk.CTkOptionMenu(
+                                    self,
+                                    values=['null'],
+                                    width=500)
+        self.optionmenu.grid(row=2, column=0, pady=10)
 
         self.boton = ctk.CTkButton(master=self,
                                    text='Generar selección',
@@ -450,7 +448,7 @@ class FrameSeleccion(ctk.CTkFrame):
         self.caja.grid(row=4, column=0, pady=10)
 
         self.boton_pdf = ctk.CTkButton(master=self,
-                                       text='Exportar PDF',
+                                       text='Exportar log',
                                        font=('D-DIN-PRO', 16),
                                        command=self.exp_pdf)
         self.boton_pdf.grid(row=5, column=0, pady=10)
@@ -479,7 +477,7 @@ class FrameSeleccion(ctk.CTkFrame):
         self.caja.configure(state='disabled')
 
         self.caja.configure(state='normal')
-        eleccion = self.combobox.get()
+        eleccion = self.optionmenu.get()
         try:
             seleccion.funcion_seleccion(eleccion)
         except:
@@ -494,7 +492,7 @@ class FrameSeleccion(ctk.CTkFrame):
 
         self.caja.configure(state='normal')
         para_pdf = self.caja.get('0.0', 'end')
-        IES_pdf = self.combobox.get()
+        IES_pdf = self.optionmenu.get()
 
         # Crear canvas para pdf del log
 
@@ -524,9 +522,7 @@ class FrameSeleccion(ctk.CTkFrame):
         self.lista_IES = [inst.replace('.xlsx', "") for inst in self.lista_IES]
         if self.lista_IES == []:
             self.lista_IES = ['null']
-        CTkScrollableDropdown(self.combobox, values=self.lista_IES,
-                              justify="left", button_color="transparent",
-                              autocomplete=True)
+        self.optionmenu.configure(values=self.lista_IES)
 
     def ir_a_carpeta(self):
         path = outputfolder + "/selección/"

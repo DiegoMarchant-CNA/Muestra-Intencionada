@@ -32,7 +32,7 @@ def seleccionar_N_programas(base: pd.DataFrame, N):
     indices = np.arange(len(base))+1
     base.insert(0, column='Índices', value=indices)
     indices_elegidos = np.random.choice(indices, size=N)
-    seleccion_log.info('Se seleccionaron los programas: ' +
+    seleccion_log.info('Se seleccionaron las carreras o programas N°: ' +
                        f'{np.array2string(indices_elegidos)}')
     programas_elegidos = np.isin(base['Índices'], indices_elegidos)
     eleccion = base.loc[programas_elegidos]
@@ -52,7 +52,7 @@ def Seleccionar_prog(base: pd.DataFrame):
     indices = np.arange(len(base))+1
     base.insert(0, column='Índices', value=indices)
     indice_elegido = int(np.random.choice(indices, size=1))
-    seleccion_log.info('Se selecciona programa: ' +
+    seleccion_log.info('Se selecciona carrera o programa N°: ' +
                        f'{indice_elegido} en el área ' +
                        f'{np.array2string(base[AC].unique())}')
     prog_elegido = base['Índices'] == indice_elegido
@@ -114,16 +114,44 @@ def agregar_sedes(base, base_sedes):
 def caso_1_AC(df):
     """
     Recibe un DataFrame con la base de carreras y retorna DF
-    con sólo elegibles según reglas en caso con 1 AC
+    con sólo elegibles según reglas en caso con 1 AC.
+    Agrega TNS al inicio de ser necesario.
     """
     N_prog = df.shape[0]
-    if N_prog == 1:
-        programas = seleccionar_N_programas(df, 1)
-    elif N_prog >= 2 and N_prog <= 9:
-        programas = seleccionar_N_programas(df, 2)
-    elif N_prog >= 10:
-        programas = seleccionar_N_programas(df, 3)
-    return programas
+
+    caso_TNS = 'Sí' in df['TNS'].unique()
+
+    if caso_TNS:
+        seleccion_log.info(
+            'Caso IES con 1 AC con TNS. ' +
+            'Se procede a realizar selección de  TNS')
+
+        base_TNS = df[df['TNS'] == 'Sí']
+        print(base_TNS)
+        TNS_elegida = seleccionar_N_programas(base_TNS, 1)
+        base_sin_TNS_elegida = df.loc[
+                    df['Código Corto'] !=
+                    TNS_elegida['Código Corto'].unique()[0]
+                    ]
+        print(base_sin_TNS_elegida)
+        if N_prog == 1:
+            programas = TNS_elegida
+        elif N_prog >= 2 and N_prog <= 9:
+            prog_no_TNS = seleccionar_N_programas(base_sin_TNS_elegida, 1)
+            programas = pd.concat([TNS_elegida, prog_no_TNS])
+        elif N_prog >= 10:
+            prog_no_TNS = seleccionar_N_programas(base_sin_TNS_elegida, 2)
+            programas = pd.concat([TNS_elegida, prog_no_TNS])
+        return programas
+
+    elif not caso_TNS:
+        if N_prog == 1:
+            programas = seleccionar_N_programas(df, 1)
+        elif N_prog >= 2 and N_prog <= 9:
+            programas = seleccionar_N_programas(df, 2)
+        elif N_prog >= 10:
+            programas = seleccionar_N_programas(df, 3)
+        return programas
 
 
 # función Caso_FFAA:
@@ -239,15 +267,16 @@ def funcion_seleccion(IES: str):
         raise Exception('Terminado con errores')
         return False
 
+    elif 'FFAA' in IES.split(' '):
+        seleccion_log.info('Se ejecuta Seleccion caso FFAA')
+
+        seleccion_final = caso_FFAA(base)
+
     elif N_AC == 1:
         seleccion_log.info('Se ejecuta Seleccion caso 1 AC')
 
         seleccion_final = caso_1_AC(base)
 
-    elif 'FFAA' in IES.split(' '):
-        seleccion_log.info('Se ejecuta Seleccion caso FFAA')
-
-        seleccion_final = caso_FFAA(base)
     elif N_AC > 1:
         seleccion_log.info('Se ejecuta Seleccion caso General')
 
