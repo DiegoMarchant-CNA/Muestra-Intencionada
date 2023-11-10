@@ -426,11 +426,11 @@ class FrameSeleccion(ctk.CTkFrame):
 
         self.lista_IES = [inst.replace('.xlsx', "") for inst in self.lista_IES]
 
-        self.optionmenu = ctk.CTkOptionMenu(
+        self.combobox = ctk.CTkComboBox(
                                     self,
                                     values=['null'],
                                     width=500)
-        self.optionmenu.grid(row=2, column=0, pady=10)
+        self.combobox.grid(row=2, column=0, pady=10)
 
         self.boton = ctk.CTkButton(master=self,
                                    text='Generar selección',
@@ -477,7 +477,7 @@ class FrameSeleccion(ctk.CTkFrame):
         self.caja.configure(state='disabled')
 
         self.caja.configure(state='normal')
-        eleccion = self.optionmenu.get()
+        eleccion = self.combobox.get()
         try:
             seleccion.funcion_seleccion(eleccion)
         except:
@@ -492,7 +492,7 @@ class FrameSeleccion(ctk.CTkFrame):
 
         self.caja.configure(state='normal')
         para_pdf = self.caja.get('0.0', 'end')
-        IES_pdf = self.optionmenu.get()
+        IES_pdf = self.combobox.get()
 
         # Crear canvas para pdf del log
 
@@ -522,7 +522,7 @@ class FrameSeleccion(ctk.CTkFrame):
         self.lista_IES = [inst.replace('.xlsx', "") for inst in self.lista_IES]
         if self.lista_IES == []:
             self.lista_IES = ['null']
-        self.optionmenu.configure(values=self.lista_IES)
+        self.combobox.configure(values=self.lista_IES)
 
     def ir_a_carpeta(self):
         path = outputfolder + "/selección/"
