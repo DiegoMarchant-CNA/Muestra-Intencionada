@@ -237,7 +237,7 @@ def funcion_seleccion(IES: str):
 
         seleccion_log.info(f'{art_8}')
         seleccion_log.info(
-            'N° de carreras de postgrado a seleccionar ' +
+            'N° de programas de postgrado a seleccionar ' +
             f'= {indice_post}')
         seleccion_log.info(
             'N° de carreras de pregrado a seleccionar ' +
@@ -273,12 +273,12 @@ def funcion_seleccion(IES: str):
         seleccion_final = caso_FFAA(base)
 
     elif N_AC == 1:
-        seleccion_log.info('Se ejecuta Seleccion caso 1 AC')
+        seleccion_log.info('Se ejecuta Selección caso 1 AC')
 
         seleccion_final = caso_1_AC(base)
 
     elif N_AC > 1:
-        seleccion_log.info('Se ejecuta Seleccion caso General')
+        seleccion_log.info('Se ejecuta Selección caso General')
 
         data_seleccion_0 = np.empty((N_AC, len(base.columns)), dtype=object)
 
