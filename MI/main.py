@@ -67,15 +67,23 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
 
     Sedes = matricula[[
                        'CÓDIGO CARRERA',
+                       'NOMBRE INSTITUCIÓN',
+                       'NOMBRE CARRERA',
                        'NOMBRE SEDE',
                        'TOTAL MATRICULADOS'
                        ]]
 
-    Sedes = Sedes.groupby(by=['CÓDIGO CARRERA', 'NOMBRE SEDE'],
+    Sedes = Sedes.groupby(by=[
+                            'CÓDIGO CARRERA',
+                            'NOMBRE INSTITUCIÓN',
+                            'NOMBRE CARRERA',
+                            'NOMBRE SEDE'],
                           as_index=False).sum()
 
     Sedes = Sedes.rename(columns={
                         'CÓDIGO CARRERA': 'Código Corto',
+                        'NOMBRE INSTITUCIÓN': 'Nombre IES',
+                        'NOMBRE CARRERA': 'Nombre carrera o programa',
                         'NOMBRE SEDE': 'Nombre Sede',
                         'TOTAL MATRICULADOS': 'Matrícula Total'}
                         )
