@@ -31,7 +31,7 @@ def seleccionar_N_programas(base: pd.DataFrame, N):
     base = base.sort_values(by='Matrícula Total', ascending=False)
     indices = np.arange(len(base))+1
     base.insert(0, column='Índices', value=indices)
-    indices_elegidos = np.random.choice(indices, size=N)
+    indices_elegidos = np.random.choice(indices, size=N, replace=False)
     seleccion_log.info('Se seleccionaron las carreras o programas N°: ' +
                        f'{np.array2string(indices_elegidos)}')
     programas_elegidos = np.isin(base['Índices'], indices_elegidos)
@@ -78,9 +78,9 @@ def Seleccionar_sede(sedes_funcion: pd.DataFrame):
     if len(indices) in np.arange(1, 3 + 1):
         indices_elegidos = np.random.choice(indices, size=1)
     elif len(indices) in np.arange(4, 9 + 1):
-        indices_elegidos = np.random.choice(indices, size=2)
+        indices_elegidos = np.random.choice(indices, size=2, replace=False)
     elif len(indices) >= 10:
-        indices_elegidos = np.random.choice(indices, size=3)
+        indices_elegidos = np.random.choice(indices, size=3, replace=False)
     sedes_elegidas = np.isin(sedes_funcion['Índices'], indices_elegidos)
     eleccion = sedes_funcion.loc[sedes_elegidas]
     eleccion_sedes = eleccion['Nombre Sede']
@@ -103,10 +103,14 @@ def agregar_sedes(base, base_sedes):
     la selección final (con o sin reemplazo)
     """
     for codigo in base['Código Corto']:
-        sedes_codigo = base_sedes.loc[base_sedes['Código Corto'] == codigo]
-        sedes_seleccionadas = Seleccionar_sede(sedes_codigo)
-        base.loc[base['Código Corto'] == codigo,
-                 ['Sede 1', 'Sede 2', 'Sede 3']] = sedes_seleccionadas
+        try:
+            sedes_codigo = base_sedes.loc[base_sedes['Código Corto'] == codigo]
+            sedes_seleccionadas = Seleccionar_sede(sedes_codigo)
+            base.loc[base['Código Corto'] == codigo,
+                     ['Sede 1', 'Sede 2', 'Sede 3']] = sedes_seleccionadas
+        except:
+            seleccion_log.info('Carrera o programa no' +
+                               ' encontrado en la base de Sedes')
 
 
 # función Caso_1_AC:
@@ -211,13 +215,6 @@ def funcion_seleccion(IES: str):
     AC_post = base[base[NIVEL] == 'Postgrado'][AC].unique()
     N_AC_post = len(AC_post)
 
-    Resumen_AC = 'Resumen de Areas del Conocimiento (AC):'
-
-    seleccion_log.info(f'{Resumen_AC}')
-    seleccion_log.info(f'Número AC total = {N_AC}')
-    seleccion_log.info(f'Número AC pregrado = {N_AC_pre}')
-    seleccion_log.info(f'Número AC postgrado = {N_AC_post}')
-
     # Revisar número AC institución, si hay postgrado entonces
     # calculamos el índice de AC a escoger
 
@@ -231,7 +228,34 @@ def funcion_seleccion(IES: str):
         valor = np.ceil(frac)  # Caso actual
         return int(valor)
 
-    if N_AC_post > 0:
+    if (
+        'FFAA' in base['Tipo Institución'].to_numpy() or
+        'FFAA' in IES.split(' ')
+       ):
+            seleccion_log.info('Se ejecuta Seleccion caso FFAA')
+            N_prog = base.shape[0]
+            if N_prog == 1:
+                seleccion_log.info(
+                    'N° de programas o carreras a seleccionar ' +
+                    '= 1')
+            if N_prog == 2:
+                seleccion_log.info(
+                    'N° de programas o carreras a seleccionar ' +
+                    '= 2')
+            elif N_prog > 2 and N_prog <= 15:
+                seleccion_log.info(
+                    'N° de programas o carreras a seleccionar ' +
+                    '= 2')
+            elif N_prog > 15 and N_prog <= 30:
+                seleccion_log.info(
+                    'N° de programas o carreras a seleccionar ' +
+                    '= 3')
+            elif N_prog > 30:
+                seleccion_log.info(
+                    'N° de programas o carreras a seleccionar ' +
+                    '= 4')
+
+    elif N_AC_post > 0:
         indice_post = formula_post(N_AC, N_AC_pre, N_AC_post)
         indice_pre = N_AC - indice_post
 
@@ -242,7 +266,6 @@ def funcion_seleccion(IES: str):
         seleccion_log.info(
             'N° de carreras de pregrado a seleccionar ' +
             f'= {indice_pre}')
-
     else:
         indice_pre = N_AC
         indice_post = 0
@@ -255,9 +278,17 @@ def funcion_seleccion(IES: str):
             'N° de carreras de pregrado a seleccionar ' +
             f'= {indice_pre}')
 
-    # Revisar el caso N_AC = 1
+    # Revisar y ejecutar el caso FFAA
 
-    if N_AC == 0:
+    if (
+        'FFAA' in base['Tipo Institución'].to_numpy() or
+        'FFAA' in IES.split(' ')
+       ):
+        seleccion_final = caso_FFAA(base)
+
+    # Revisar el caso sin AC
+
+    elif N_AC == 0:
         msg_N_AC_0 = (
             'La institución no tiene carreras o programas ' +
             'elegibles, por lo tanto, no hay resultado en la ' +
@@ -267,18 +298,31 @@ def funcion_seleccion(IES: str):
         raise Exception('Terminado con errores')
         return False
 
-    elif 'FFAA' in IES.split(' '):
-        seleccion_log.info('Se ejecuta Seleccion caso FFAA')
-
-        seleccion_final = caso_FFAA(base)
+    # Revisar y ejecutar el caso N_AC = 1
 
     elif N_AC == 1:
         seleccion_log.info('Se ejecuta Selección caso 1 AC')
 
+        Resumen_AC = 'Resumen de Areas del Conocimiento (AC):'
+
+        seleccion_log.info(f'{Resumen_AC}')
+        seleccion_log.info(f'Número AC total = {N_AC}')
+        seleccion_log.info(f'Número AC pregrado = {N_AC_pre}')
+        seleccion_log.info(f'Número AC postgrado = {N_AC_post}')
+
         seleccion_final = caso_1_AC(base)
+
+    # Revisar y ejecutar el caso general
 
     elif N_AC > 1:
         seleccion_log.info('Se ejecuta Selección caso General')
+
+        Resumen_AC = 'Resumen de Areas del Conocimiento (AC):'
+
+        seleccion_log.info(f'{Resumen_AC}')
+        seleccion_log.info(f'Número AC total = {N_AC}')
+        seleccion_log.info(f'Número AC pregrado = {N_AC_pre}')
+        seleccion_log.info(f'Número AC postgrado = {N_AC_post}')
 
         data_seleccion_0 = np.empty((N_AC, len(base.columns)), dtype=object)
 
@@ -313,6 +357,23 @@ def funcion_seleccion(IES: str):
             data_seleccion_0[n] = Seleccionar_prog(base_AC)
 
         seleccion_0 = pd.DataFrame(data=data_seleccion_0, columns=base.columns)
+
+        # Información Selección inicial
+
+        seleccion_log.info(
+            'Resumen Selección inicial')
+
+        post_seleccion_0 = len(seleccion_0[seleccion_0[NIVEL]
+                                           == 'Postgrado'])
+        pre_seleccion_0 = len(seleccion_0[seleccion_0[NIVEL]
+                                          == 'Pregrado'])
+
+        seleccion_log.info(
+            'N° de carreras de pregrado seleccionadas ' +
+            f'= {pre_seleccion_0}')
+        seleccion_log.info(
+            'N° de programas de postgrado seleccionados ' +
+            f'= {post_seleccion_0}')
 
         # Exportar tabla de selección antes de reemplazo
 
@@ -416,8 +477,25 @@ def funcion_seleccion(IES: str):
 
     # Agregar sedes en el caso con reemplazo
 
-    agregar_sedes(seleccion_final, Sedes)
     seleccion_log.info(f'{art_11}')
+    agregar_sedes(seleccion_final, Sedes)
+
+    # Información selección final
+
+    seleccion_log.info(
+        'Resumen Selección final')
+
+    post_seleccion_final = len(seleccion_final[seleccion_final[NIVEL]
+                                               == 'Postgrado'])
+    pre_seleccion_final = len(seleccion_final[seleccion_final[NIVEL]
+                                              == 'Pregrado'])
+
+    seleccion_log.info(
+        'N° de carreras de pregrado seleccionadas ' +
+        f'= {pre_seleccion_final}')
+    seleccion_log.info(
+        'N° de programas de postgrado seleccionados ' +
+        f'= {post_seleccion_final}')
 
     # Guardar en excel
     PATH_seleccion_final = f'../Bases Depuradas/Selección/{IES}_selección final y sedes.xlsx'

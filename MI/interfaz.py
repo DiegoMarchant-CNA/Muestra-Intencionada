@@ -74,7 +74,7 @@ for nombre_directorio in ["", "Selección/", "Elegibles/"]:
 
 # Configuración inicial de la app
 ctk.set_appearance_mode('system')
-ctk.set_default_color_theme('CNA_colors')
+ctk.set_default_color_theme('CNA_colors.json')
 
 
 class App(ctk.CTk):
@@ -205,7 +205,7 @@ class FrameInicio(ctk.CTkFrame):
         # Versión del software
         self.versionLabel = ctk.CTkLabel(
                                     master=self,
-                                    text='Build 1.1.0-rc.1, coded by Madnstar'
+                                    text='Build 1.2.0, coded by Madnstar'
                                     )
         self.versionLabel.place(
                     anchor=ctk.SE,
@@ -386,6 +386,11 @@ class FrameElegibles(ctk.CTkFrame):
             self.Matricula_boton.configure(text='Matrícula SIES')
             self.Titulados_boton.configure(text='Titulados SIES')
             self.progressbar.set(1)
+
+            tk.messagebox.showinfo(
+                'Elegibles listos',
+                'Elegibles por IES creados y guardados en carpeta'
+                )
         except:
             self.mal_cargados()
             print('Archivos mal ingresados')
@@ -486,7 +491,7 @@ class FrameSeleccion(ctk.CTkFrame):
         self.caja.configure(state='disabled')
 
     def exp_pdf(self):
-        """Función para borrar el texto en la caja de output."""
+        """Función para generar un PDF con el log."""
 
         # Sacar info para exportar
 
@@ -509,6 +514,12 @@ class FrameSeleccion(ctk.CTkFrame):
         with open("pdf_log.txt", "r") as f:
             for x in f:
                 pdf.multi_cell(200, 10, txt=x, align='L')
+
+        # Pantalla de confirmación
+        tk.messagebox.showinfo(
+            'PDF exportado',
+            'Log exportado en formato PDF y guardado en carpeta.'
+            )
 
         # Guardar info
 

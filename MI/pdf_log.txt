@@ -1,0 +1,21 @@
+- [ 21-11-2023 11:37:20 ] - Se inicia selección para la Institución: CFT JUAN BOHON
+- [ 21-11-2023 11:37:21 ] - Resultados de la fórmula (RE DJ N°346-45 de 2023, artículo 8)
+- [ 21-11-2023 11:37:21 ] - N° de carreras de postgrado a seleccionar = 0
+- [ 21-11-2023 11:37:21 ] - N° de carreras de pregrado a seleccionar = 4
+- [ 21-11-2023 11:37:21 ] - Se ejecuta Selección caso General
+- [ 21-11-2023 11:37:21 ] - Resumen de Areas del Conocimiento (AC):
+- [ 21-11-2023 11:37:21 ] - Número AC total = 4
+- [ 21-11-2023 11:37:21 ] - Número AC pregrado = 4
+- [ 21-11-2023 11:37:21 ] - Número AC postgrado = 0
+- [ 21-11-2023 11:37:21 ] - Se selecciona carrera o programa N°: 1 en el área ['Educación']
+- [ 21-11-2023 11:37:21 ] - Se selecciona carrera o programa N°: 2 en el área ['Tecnología']
+- [ 21-11-2023 11:37:21 ] - Se selecciona carrera o programa N°: 3 en el área ['Administración y Comercio']
+- [ 21-11-2023 11:37:21 ] - Se selecciona carrera o programa N°: 1 en el área ['Arte y Arquitectura']
+- [ 21-11-2023 11:37:21 ] - Resumen Selección inicial
+- [ 21-11-2023 11:37:21 ] - N° de carreras de pregrado seleccionadas = 4
+- [ 21-11-2023 11:37:21 ] - N° de programas de postgrado seleccionados = 0
+- [ 21-11-2023 11:37:21 ] - Se guarda selección en archivo ../Bases Depuradas/selección/CFT JUAN BOHON_selección_inicial.xlsx
+- [ 21-11-2023 11:37:21 ] - Reemplazo de carreras o programas (RE DJ N°346-45 de 2023, artículo 10)
+- [ 21-11-2023 11:37:21 ] - No se realizó reemplazo
+- [ 21-11-2023 11:37:21 ] - Se guarda seleccion en archivo../Bases Depuradas/selección/CFT JUAN BOHON_selección.xlsx
+
