@@ -256,7 +256,7 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
                                                             case=False)
     base_general = base_general.loc[~bool_postitulo]
 
-    base_general.to_excel(foldername + '/prueba.xlsx', index=False)
+    base_general.to_excel(foldername + '/elegibles consolidado.xlsx', index=False)
 
     # Guardar tabla de datos  y elegibles en formato .xlsx.
     for i in base_general['IES'].unique():
