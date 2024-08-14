@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import filedialog as fd
 from PIL import Image
 import logging
+import openpyxl
 
 from fpdf import FPDF
 
