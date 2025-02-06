@@ -111,7 +111,8 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
                           'Nombre Carrera',
                           'Nivel Global',
                           'Nivel Carrera',
-                          'Área del conocimiento'
+                          'Área del conocimiento',
+                          'Versión'
                           ]]
 
     Base_matricula = matricula[[
@@ -136,8 +137,35 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
                           )
 
     # Quedarse con una base de casos únicos
-    Base_oferta = Base_oferta.drop_duplicates()
+    nuevos_nombres = Base_oferta.groupby(
+        ["Código Corto"],
+        as_index=False
+        )["Nombre Carrera"].apply(lambda x: " / ".join(x.unique()))
 
+    Base_oferta = pd.merge(Base_oferta,
+                           nuevos_nombres,
+                           on="Código Corto",
+                           how="left",
+                           suffixes=["_old", ""])
+
+    Base_oferta.drop(
+        "Nombre Carrera_old",
+        axis=1,
+        inplace=True
+        )
+
+    Base_oferta.sort_values(
+        by="Versión",
+        inplace=True
+        )
+
+    Base_oferta = Base_oferta.drop_duplicates("Código Corto")
+
+    Base_oferta.drop(
+        "Versión",
+        axis=1,
+        inplace=True
+        )
     # En los casos de matrícula y titulados,
     # agregar los datos usando suma. Ej. la matrícula de la carrera
     # es la suma de las matrículas en cada sede
@@ -243,7 +271,7 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
                                        'Nivel Global': 'Nivel CNA',
                                        'Nivel Carrera': 'Nivel Carrera SIES'}
                                        )
-
+    
     # Quitar las IES en convenio
 
     bool_convenio = base_general['IES'].str.contains('convenio',
