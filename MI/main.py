@@ -14,7 +14,7 @@ main_log = logging.getLogger('Main')
 
 # Archivo principal
 
-def Main(foldername, oferta_path, mat_path, titulados_path):
+def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
     """Ejecuta programa para ordenar bases de datos
     y guardarlas en archivo xlsx en el directorio foldername.
 
@@ -36,7 +36,7 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
 
     oferta = lecto_limpiador(oferta_path)
     matricula = lecto_limpiador(mat_path)
-    titulados = lecto_limpiador(titulados_path)
+    # titulados = lecto_limpiador(titulados_path)
 
     # Cambiar columna Código Único por
     # columna de código corto con sede en bases
@@ -52,7 +52,7 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
         return x
 
     matricula['CÓDIGO CARRERA'] = codigo_corto(matricula['CÓDIGO CARRERA'])
-    titulados['CÓDIGO CARRERA'] = codigo_corto(titulados['CÓDIGO CARRERA'])
+    # titulados['CÓDIGO CARRERA'] = codigo_corto(titulados['CÓDIGO CARRERA'])
 
     codigo_oferta = (
                      'I'
@@ -86,7 +86,7 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
                         'NOMBRE CARRERA': 'Nombre carrera o programa',
                         'NOMBRE SEDE': 'Nombre Sede',
                         'TOTAL MATRICULADOS': 'Matrícula Total'}
-                        )
+                        ) # type: ignore
 
     PATH_sedes = foldername + '/sedes.xlsx'
 
@@ -125,16 +125,16 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
                             'TOTAL MATRICULADOS': 'Matrícula Total',
                             'TOTAL MATRICULADOS PRIMER AÑO':
                             'Matrícula Primer Año'}
-                          )
+                          ) # type: ignore
 
-    Base_titulados = titulados[[
-                                'CÓDIGO CARRERA',
-                                'TOTAL TITULADOS'
-                                ]]
-    Base_titulados = Base_titulados.rename(columns={
-                            'CÓDIGO CARRERA': 'Código Corto',
-                            'TOTAL TITULADOS': 'Titulados'}
-                          )
+    # Base_titulados = titulados[[
+    #                             'CÓDIGO CARRERA',
+    #                             'TOTAL TITULADOS'
+    #                             ]]
+    # Base_titulados = Base_titulados.rename(columns={
+    #                         'CÓDIGO CARRERA': 'Código Corto',
+    #                         'TOTAL TITULADOS': 'Titulados'}
+    #                       )
 
     # Quedarse con una base de casos únicos
     nuevos_nombres = Base_oferta.groupby(
@@ -174,8 +174,8 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
     Base_matricula = Base_matricula.groupby(by=['Código Corto'],
                                             as_index=False).sum()
 
-    Base_titulados = Base_titulados.groupby(by=['Código Corto'],
-                                            as_index=False).sum()
+    # Base_titulados = Base_titulados.groupby(by=['Código Corto'],
+    #                                         as_index=False).sum()
 
     # Generar base con cruce
 
@@ -185,11 +185,11 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
                             how='left')
     main_log.debug('Se cruza base oferta con base matricula')
 
-    base_general = pd.merge(base_general,
-                            Base_titulados,
-                            on='Código Corto',
-                            how='left')
-    main_log.debug('Se cruza base oferta con base titulados')
+    # base_general = pd.merge(base_general,
+    #                         Base_titulados,
+    #                         on='Código Corto',
+    #                         how='left')
+    # main_log.debug('Se cruza base oferta con base titulados')
 
     # Proceder con la filtración. Se consideran las condiciones de:
     # Tener matrícula vigente de primer año > 0,
@@ -211,10 +211,10 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
         base_general['Matrícula Primer Año'] > 0)
     main_log.debug('Se filtra base por condicion Matrícula Primer Año > 0')
 
-    set_titulados = Filtro_codigos(
-        base_general,
-        base_general['Titulados'] > 0)
-    main_log.debug('Se filtra base por condicion Titulados > 0')
+    # set_titulados = Filtro_codigos(
+    #     base_general,
+    #     base_general['Titulados'] > 0)
+    # main_log.debug('Se filtra base por condicion Titulados > 0')
 
     eemmoo = Filtro_codigos(
         base_general,
@@ -234,8 +234,10 @@ def Main(foldername, oferta_path, mat_path, titulados_path):
                    '== bachi_pc_ci_str')
 
     programas = np.setdiff1d(np.union1d(eemmoo, pre_post), bachi_pc_ci)
-    elegibles = np.intersect1d(np.intersect1d(programas,
-                               set_matr_vigente), set_titulados)
+    # elegibles = np.intersect1d(np.intersect1d(programas,
+                            #    set_matr_vigente), set_titulados) # Ya no se considera titulados
+    elegibles = np.intersect1d(programas,
+                               set_matr_vigente)
     main_log.debug('Se calcula vector de elegibles')
 
     # Agregar columna caso TNS

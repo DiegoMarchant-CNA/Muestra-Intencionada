@@ -206,7 +206,7 @@ class FrameInicio(ctk.CTkFrame):
         # Versión del software
         self.versionLabel = ctk.CTkLabel(
                                     master=self,
-                                    text='Build 1.2.0, coded by Madnstar'
+                                    text='Build 1.4.0, coded by Madnstar'
                                     )
         self.versionLabel.place(
                     anchor=ctk.SE,
@@ -240,7 +240,7 @@ class FrameElegibles(ctk.CTkFrame):
                 'programas de pregrado y posgrado, según lo declarado por ' +
                 'la misma institución en sus documentos de autoevaluación,' +
                 ' se deberá: Acceder, depurar y combinar las bases de datos ' +
-                'SIES de oferta, matrícula y titulados del SIES según ' +
+                'SIES de oferta y matrícula de SIES según ' +
                 'corresponda, por parte de la Comisión, para proceder a ' +
                 'identificar las carreras o programas elegibles de la ' +
                 'institución de educación superior. (RE DJ N°346-45 de 202' +
@@ -295,17 +295,17 @@ class FrameElegibles(ctk.CTkFrame):
                 command=self.select_file_matricula)
         self.Matricula_boton.grid(row=3, column=2, pady=10, sticky='NS')
 
-        self.TituladosLabel = ctk.CTkLabel(
-                self,
-                text='Seleccione el archivo de Titulados SIES',
-                font=('D-DIN-PRO', 16))
-        self.TituladosLabel.grid(row=4, column=2, pady=10, sticky='NS')
+        # self.TituladosLabel = ctk.CTkLabel(
+        #         self,
+        #         text='Seleccione el archivo de Titulados SIES',
+        #         font=('D-DIN-PRO', 16))
+        # self.TituladosLabel.grid(row=4, column=2, pady=10, sticky='NS')
 
-        self.Titulados_boton = ctk.CTkButton(
-                self,
-                text='Titulados SIES',
-                command=self.select_file_titulados)
-        self.Titulados_boton.grid(row=5, column=2, pady=10, sticky='NS')
+        # self.Titulados_boton = ctk.CTkButton(
+        #         self,
+        #         text='Titulados SIES',
+        #         command=self.select_file_titulados)
+        # self.Titulados_boton.grid(row=5, column=2, pady=10, sticky='NS')
 
         self.Run_Main_boton = ctk.CTkButton(
                 self,
@@ -351,20 +351,20 @@ class FrameElegibles(ctk.CTkFrame):
             self.Matricula_boton.configure(text=file)
         self.Matricula_path = file
 
-    def select_file_titulados(self):
-        """Función para botón de selección archivo Titulados."""
-        filetypes = (
-                ('csv (archivo separado por comas)', '.csv'),
-                ('Todos los archivos', '*.*')
-        )
+    # def select_file_titulados(self):
+    #     """Función para botón de selección archivo Titulados."""
+    #     filetypes = (
+    #             ('csv (archivo separado por comas)', '.csv'),
+    #             ('Todos los archivos', '*.*')
+    #     )
 
-        file = fd.askopenfilename(
-                title='Abrir archivo',
-                initialdir='/',
-                filetypes=filetypes)
-        if file != '':
-            self.Titulados_boton.configure(text=file)
-        self.Titulados_path = file
+        # file = fd.askopenfilename(
+        #         title='Abrir archivo',
+        #         initialdir='/',
+        #         filetypes=filetypes)
+        # if file != '':
+        #     self.Titulados_boton.configure(text=file)
+        # self.Titulados_path = file
 
     def mal_cargados(self):
         tk.messagebox.showerror(
@@ -380,12 +380,12 @@ class FrameElegibles(ctk.CTkFrame):
                 outputfolder,
                 self.Oferta_path,
                 self.Matricula_path,
-                self.Titulados_path
+                # self.Titulados_path
                 )
             self.Run_Main_boton.configure(text='Elegibles listos!')
             self.Oferta_boton.configure(text='Oferta SIES')
             self.Matricula_boton.configure(text='Matrícula SIES')
-            self.Titulados_boton.configure(text='Titulados SIES')
+            # self.Titulados_boton.configure(text='Titulados SIES')
             self.progressbar.set(1)
 
             tk.messagebox.showinfo(
@@ -397,7 +397,7 @@ class FrameElegibles(ctk.CTkFrame):
             print('Archivos mal ingresados')
             self.Oferta_boton.configure(text='Oferta SIES')
             self.Matricula_boton.configure(text='Matrícula SIES')
-            self.Titulados_boton.configure(text='Titulados SIES')
+            # self.Titulados_boton.configure(text='Titulados SIES')
 
     def update_bar(self, progreso):
         self.progressbar.set(progreso)
