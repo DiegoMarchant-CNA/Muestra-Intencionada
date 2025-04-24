@@ -109,6 +109,7 @@ def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
                           'Tipo Institución 1',
                           'Nombre IES',
                           'Nombre Carrera',
+                          'Grado Académico',
                           'Nivel Global',
                           'Nivel Carrera',
                           'Área del conocimiento',
@@ -201,6 +202,7 @@ def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
     bachi_pc_ci_str = "Bachillerato, Ciclo Inicial o Plan Común"
     TNS_str = 'Técnico de Nivel Superior'
     Postitulo_str = 'Postítulo'
+    no_grado_str = "NO OTORGA GRADO"
 
     def Filtro_codigos(df, condition_mask):
         """Retorna Data Frame df filtrado según condition_mask"""
@@ -232,8 +234,15 @@ def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
         base_general['Nivel Carrera'] == bachi_pc_ci_str)
     main_log.debug('Se filtra base por condicion Nivel Carrera ' +
                    '== bachi_pc_ci_str')
+    
+    no_grado = Filtro_codigos(
+        base_general,
+        base_general['Grado Académico'] == no_grado_str)
+    main_log.debug('Se filtra base por condicion Nivel Carrera ' +
+                   '== no_grado_str')
 
-    programas = np.setdiff1d(np.union1d(eemmoo, pre_post), bachi_pc_ci)
+
+    programas = np.setdiff1d(np.union1d(eemmoo, pre_post, bachi_pc_ci), no_grado)
     # elegibles = np.intersect1d(np.intersect1d(programas,
                             #    set_matr_vigente), set_titulados) # Ya no se considera titulados
     elegibles = np.intersect1d(programas,
