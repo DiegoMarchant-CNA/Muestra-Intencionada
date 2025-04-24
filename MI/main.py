@@ -109,6 +109,7 @@ def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
                           'Tipo Institución 1',
                           'Nombre IES',
                           'Nombre Carrera',
+                          'Tipo Carrera',
                           'Grado Académico',
                           'Nivel Global',
                           'Nivel Carrera',
@@ -203,6 +204,7 @@ def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
     TNS_str = 'Técnico de Nivel Superior'
     Postitulo_str = 'Postítulo'
     no_grado_str = "NO OTORGA GRADO"
+    continuidad_str = "Plan Regular de Continuidad"
 
     def Filtro_codigos(df, condition_mask):
         """Retorna Data Frame df filtrado según condition_mask"""
@@ -212,6 +214,11 @@ def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
         base_general,
         base_general['Matrícula Primer Año'] > 0)
     main_log.debug('Se filtra base por condicion Matrícula Primer Año > 0')
+
+    set_matr_total = Filtro_codigos(
+        base_general,
+        base_general['Matrícula Total'] > 0)
+    main_log.debug('Se filtra base por condicion Matrícula Total > 0')
 
     # set_titulados = Filtro_codigos(
     #     base_general,
@@ -238,15 +245,36 @@ def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
     no_grado = Filtro_codigos(
         base_general,
         base_general['Grado Académico'] == no_grado_str)
-    main_log.debug('Se filtra base por condicion Nivel Carrera ' +
+    main_log.debug('Se filtra base por condicion Grado Académico ' +
                    '== no_grado_str')
+    
+    continuidad = Filtro_codigos(
+        base_general,
+        base_general['Tipo Carrera'] == continuidad_str)
+    main_log.debug('Se filtra base por condicion Tipo Carrera ' +
+                   '== continuidad_str')
 
 
-    programas = np.setdiff1d(np.union1d(eemmoo, pre_post, bachi_pc_ci), no_grado)
+    programas = np.setdiff1d(
+        np.union1d(
+            eemmoo,
+            pre_post,
+            bachi_pc_ci
+            ),
+            no_grado
+            )
     # elegibles = np.intersect1d(np.intersect1d(programas,
                             #    set_matr_vigente), set_titulados) # Ya no se considera titulados
-    elegibles = np.intersect1d(programas,
-                               set_matr_vigente)
+    elegibles = np.union1d(
+        np.intersect1d(
+            programas,
+            set_matr_vigente
+            ),
+        np.interset1d(
+            continuidad,
+            set_matr_total
+        )
+    )
     main_log.debug('Se calcula vector de elegibles')
 
     # Agregar columna caso TNS
