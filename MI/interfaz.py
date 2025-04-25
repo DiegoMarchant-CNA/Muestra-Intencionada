@@ -206,7 +206,7 @@ class FrameInicio(ctk.CTkFrame):
         # Versión del software
         self.versionLabel = ctk.CTkLabel(
                                     master=self,
-                                    text='Build 1.4.0, coded by Madnstar'
+                                    text='Build 1.5.0, coded by Madnstar'
                                     )
         self.versionLabel.place(
                     anchor=ctk.SE,

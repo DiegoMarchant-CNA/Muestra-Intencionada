@@ -204,6 +204,7 @@ def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
     TNS_str = 'Técnico de Nivel Superior'
     Postitulo_str = 'Postítulo'
     no_grado_str = "NO OTORGA GRADO"
+    conducente_str = "CONDUCE"
     continuidad_str = "Plan Regular de Continuidad"
 
     def Filtro_codigos(df, condition_mask):
@@ -241,36 +242,45 @@ def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
         base_general['Nivel Carrera'] == bachi_pc_ci_str)
     main_log.debug('Se filtra base por condicion Nivel Carrera ' +
                    '== bachi_pc_ci_str')
-    
+
     no_grado = Filtro_codigos(
         base_general,
         base_general['Grado Académico'] == no_grado_str)
     main_log.debug('Se filtra base por condicion Grado Académico ' +
                    '== no_grado_str')
-    
+
     continuidad = Filtro_codigos(
         base_general,
         base_general['Tipo Carrera'] == continuidad_str)
     main_log.debug('Se filtra base por condicion Tipo Carrera ' +
                    '== continuidad_str')
 
+    conduce = Filtro_codigos(
+        base_general,
+        base_general['Grado Académico'].str.contains(conducente_str, na=False, regex=False))
+    main_log.debug('Se filtra base por condicion Grado Académico ' +
+                   'contiene CONDUCE')
+
+    programas = np.union1d(
+        eemmoo,
+        pre_post
+        )
 
     programas = np.setdiff1d(
-        np.union1d(
-            eemmoo,
-            pre_post,
-            bachi_pc_ci
-            ),
-            no_grado
+        programas,
+        np.intersect1d(bachi_pc_ci,
+                       np.union1d(no_grado, conduce))
             )
+    main_log.debug("Se calculan programas")
+
     # elegibles = np.intersect1d(np.intersect1d(programas,
-                            #    set_matr_vigente), set_titulados) # Ya no se considera titulados
+    # set_matr_vigente), set_titulados) # Ya no se considera titulados
     elegibles = np.union1d(
         np.intersect1d(
             programas,
             set_matr_vigente
             ),
-        np.interset1d(
+        np.intersect1d(
             continuidad,
             set_matr_total
         )
@@ -310,7 +320,7 @@ def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
                                        'Nivel Global': 'Nivel CNA',
                                        'Nivel Carrera': 'Nivel Carrera SIES'}
                                        )
-    
+
     # Quitar las IES en convenio
 
     bool_convenio = base_general['IES'].str.contains('convenio',
