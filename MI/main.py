@@ -276,15 +276,16 @@ def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
     # elegibles = np.intersect1d(np.intersect1d(programas,
     # set_matr_vigente), set_titulados) # Ya no se considera titulados
     elegibles = np.union1d(
-        np.intersect1d(
-            programas,
-            set_matr_vigente
-            ),
-        np.intersect1d(
-            continuidad,
-            set_matr_total
-        )
-    )
+                np.intersect1d(
+                    programas,
+                    set_matr_vigente
+                    ),
+                np.intersect1d(
+                    continuidad,
+                    set_matr_total
+                    )
+                    )
+    
     main_log.debug('Se calcula vector de elegibles')
 
     # Agregar columna caso TNS

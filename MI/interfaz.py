@@ -182,7 +182,7 @@ class FrameInicio(ctk.CTkFrame):
             'de la institución.' +
             'De acuerdo con el reglamento que aprueba el procedimiento ' +
             'de selección de la muestra intencionada (Resolución ' +
-            'Exenta DJ N°346-45 de 2023), existen ciertos requisitos ' +
+            'Exenta DJ N°449-4 de 2025), existen ciertos requisitos ' +
             'de elegibilidad para ser parte del conjunto de carreras ' +
             'y programas que podrían ser seleccionadas en la ' +
             'muestra intencionada. ')
@@ -240,11 +240,11 @@ class FrameElegibles(ctk.CTkFrame):
                 'programas de pregrado y posgrado, según lo declarado por ' +
                 'la misma institución en sus documentos de autoevaluación,' +
                 ' se deberá: Acceder, depurar y combinar las bases de datos ' +
-                'SIES de oferta y matrícula de SIES según ' +
+                'SIES de oferta, matrícula y titulados de SIES según ' +
                 'corresponda, por parte de la Comisión, para proceder a ' +
                 'identificar las carreras o programas elegibles de la ' +
-                'institución de educación superior. (RE DJ N°346-45 de 202' +
-                '3, artículo 7)')
+                'institución de educación superior. (RE DJ N°449-4 de 202' +
+                '5, artículo 7)')
 
         self.ElegiblesText = ctk.CTkTextbox(
             self,
@@ -352,11 +352,11 @@ class FrameElegibles(ctk.CTkFrame):
         self.Matricula_path = file
 
     # def select_file_titulados(self):
-    #     """Función para botón de selección archivo Titulados."""
-    #     filetypes = (
-    #             ('csv (archivo separado por comas)', '.csv'),
-    #             ('Todos los archivos', '*.*')
-    #     )
+        # """Función para botón de selección archivo Titulados."""
+        # filetypes = (
+        #         ('csv (archivo separado por comas)', '.csv'),
+        #         ('Todos los archivos', '*.*')
+        # )
 
         # file = fd.askopenfilename(
         #         title='Abrir archivo',
@@ -380,7 +380,7 @@ class FrameElegibles(ctk.CTkFrame):
                 outputfolder,
                 self.Oferta_path,
                 self.Matricula_path,
-                # self.Titulados_path
+                self.Titulados_path
                 )
             self.Run_Main_boton.configure(text='Elegibles listos!')
             self.Oferta_boton.configure(text='Oferta SIES')
