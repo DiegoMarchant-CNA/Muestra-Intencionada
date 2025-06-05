@@ -203,7 +203,7 @@ def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
     bachi_pc_ci_str = "Bachillerato, Ciclo Inicial o Plan Común"
     TNS_str = 'Técnico de Nivel Superior'
     Postitulo_str = 'Postítulo'
-    no_grado_str = "NO OTORGA GRADO"
+    licenciatura_str = "LICENCIA"
     conducente_str = "CONDUCE"
     continuidad_str = "Plan Regular de Continuidad"
 
@@ -243,11 +243,11 @@ def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
     main_log.debug('Se filtra base por condicion Nivel Carrera ' +
                    '== bachi_pc_ci_str')
 
-    no_grado = Filtro_codigos(
+    licencia = Filtro_codigos(
         base_general,
-        base_general['Grado Académico'] == no_grado_str)
+        base_general['Grado Académico'].str.contains(licenciatura_str, na=False, regex=False))
     main_log.debug('Se filtra base por condicion Grado Académico ' +
-                   '== no_grado_str')
+                   'contiene licenciatura_str')
 
     continuidad = Filtro_codigos(
         base_general,
@@ -268,9 +268,9 @@ def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
 
     programas = np.setdiff1d(
         programas,
-        np.intersect1d(bachi_pc_ci,
-                       np.union1d(no_grado, conduce))
-            )
+        np.union1d(np.setdiff1d(bachi_pc_ci, licencia),
+                   np.intersect1d(bachi_pc_ci, conduce))
+        )
     main_log.debug("Se calculan programas")
 
     # elegibles = np.intersect1d(np.intersect1d(programas,
