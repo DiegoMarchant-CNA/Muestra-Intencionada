@@ -70,7 +70,7 @@ def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
                        'NOMBRE INSTITUCIÓN',
                        'NOMBRE CARRERA',
                        'NOMBRE SEDE',
-                       'TOTAL MATRICULADOS'
+                       'TOTAL MATRÍCULA'
                        ]]
 
     Sedes = Sedes.groupby(by=[
@@ -85,7 +85,7 @@ def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
                         'NOMBRE INSTITUCIÓN': 'Nombre IES',
                         'NOMBRE CARRERA': 'Nombre carrera o programa',
                         'NOMBRE SEDE': 'Nombre Sede',
-                        'TOTAL MATRICULADOS': 'Matrícula Total'}
+                        'TOTAL MATRÍCULA': 'Matrícula Total'}
                         ) # type: ignore
 
     PATH_sedes = foldername + '/sedes.xlsx'
@@ -98,7 +98,7 @@ def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
     # Oferta: [Código corto CS, Tipo Institución 1, Nombre IES,
     # Nombre Carrera, Nivel Global, Nivel Carrera, Área del Conocimiento]
 
-    # Matrícula: [Código corto CS, Nombre Sede, Total Matriculados,
+    # Matrícula: [Código corto CS, Nombre Sede, Total Matrícula,
     # Total Matr. 1er Año]
 
     # Titulados: [Código corto, Total Titulados]
@@ -119,13 +119,13 @@ def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
 
     Base_matricula = matricula[[
                                 'CÓDIGO CARRERA',
-                                'TOTAL MATRICULADOS',
-                                'TOTAL MATRICULADOS PRIMER AÑO'
+                                'TOTAL MATRÍCULA',
+                                'TOTAL MATRÍCULA PRIMER AÑO'
                                 ]]
     Base_matricula = Base_matricula.rename(columns={
                             'CÓDIGO CARRERA': 'Código Corto',
-                            'TOTAL MATRICULADOS': 'Matrícula Total',
-                            'TOTAL MATRICULADOS PRIMER AÑO':
+                            'TOTAL MATRÍCULA': 'Matrícula Total',
+                            'TOTAL MATRÍCULA PRIMER AÑO':
                             'Matrícula Primer Año'}
                           ) # type: ignore
 
@@ -306,6 +306,11 @@ def Main(foldername, oferta_path="", mat_path="", titulados_path=""):
                         elegibles,
                         invert=True),
                      'Elegibles'] = 'No'
+
+    # Renombrar filas a nomenclatura CNA
+
+    base_general.loc[base_general['Nivel Global'] == "Posgrado",
+                     'Nivel Global'] = 'Postgrado'
 
     base_general.loc[base_general['Nivel Carrera'] == eemmoo_str,
                      'Nivel Global'] = 'Postgrado'
